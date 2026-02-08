@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsString,
@@ -15,11 +16,13 @@ export class CreateRoomDto {
   name: string;
 
   @IsNotEmpty({ message: 'Price is required' })
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   price: number;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   area?: number;
