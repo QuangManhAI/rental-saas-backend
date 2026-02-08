@@ -82,7 +82,7 @@ export class SeedService {
 
     await this.userModel.create({
       _id: ownerId,
-      email: 'py@gmail.com',
+      email: 'py.quang.manh.ai@gmail.com',
       password: hashedPassword,
       fullName: 'Nhu Pham Quang Manh',
       phone: '+84372808558',
