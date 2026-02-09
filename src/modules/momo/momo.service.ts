@@ -56,6 +56,7 @@ export class MomoService {
     async createPayment(
         billId: string,
         user: UserPayload,
+        force: boolean = false,
     ): Promise<{ payUrl: string; orderId: string }> {
         // 1. Load and validate bill
         const bill = await this.billModel.findOne({
@@ -67,7 +68,7 @@ export class MomoService {
             throw new NotFoundException('Bill not found or access denied');
         }
 
-        if (bill.status === BillStatus.PAID) {
+        if (bill.status === BillStatus.PAID && !force) {
             throw new BadRequestException('Bill is already fully paid');
         }
 
@@ -90,7 +91,16 @@ export class MomoService {
         // 3. Prepare payment request
         const orderId = `${billId}_${Date.now()}`;
         const requestId = orderId;
-        const amount = bill.totalAmount - bill.paidAmount; // Remaining amount
+        let amount = bill.totalAmount - bill.paidAmount; // Remaining amount
+
+        // If forced and paid (amount is 0), use total amount for link generation
+        if (force && amount <= 0) {
+            amount = bill.totalAmount;
+        }
+
+        if (amount <= 0) {
+            throw new BadRequestException('Invalid amount for payment');
+        }
         const orderInfo = `Thanh toan hoa don ${bill.month}/${bill.year}`;
         const redirectUrl = this.configService.get('MOMO_REDIRECT_URL') || 'http://localhost:3000/payment/result';
         const ipnUrl = this.configService.get('MOMO_IPN_URL') || 'http://localhost:4000/momo/ipn';

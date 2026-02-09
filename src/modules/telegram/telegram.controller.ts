@@ -230,10 +230,9 @@ export class TelegramController {
           tenant.telegramLinkedAt = new Date();
           await tenant.save();
 
-          // Find any unpaid bill for this contract
-          const unpaidBill = await Bill.findOne({
+          // Find latest bill (any status)
+          const latestBill = await Bill.findOne({
             contractId: new Types.ObjectId(contractId),
-            status: { $in: ['UNPAID', 'PARTIAL'] },
           }).sort({ year: -1, month: -1 }).lean();
 
           const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
@@ -249,24 +248,28 @@ export class TelegramController {
           msg += `• Báo trước 30 ngày nếu muốn trả phòng\n`;
           msg += `━━━━━━━━━━━━━━━━━━━━\n\n`;
 
-          if (unpaidBill) {
-            const remaining = (unpaidBill as any).totalAmount - (unpaidBill as any).paidAmount;
+          if (latestBill) {
+            const bill = latestBill as any;
+            const remaining = bill.totalAmount - bill.paidAmount;
             const vnd = (n: number) => new Intl.NumberFormat('vi-VN').format(n);
-            msg += `💰 <b>HOÁ ĐƠN CẦN THANH TOÁN</b>\n`;
-            msg += `Tháng ${(unpaidBill as any).month}/${(unpaidBill as any).year}: ${vnd(remaining)} VNĐ\n`;
+            const isPaid = bill.status === 'PAID';
 
-            // Generate MoMo payment link
+            msg += `💰 <b>HOÁ ĐƠN GẦN NHẤT (T${bill.month}/${bill.year})</b>\n`;
+            msg += `Trạng thái: ${isPaid ? '✅ Đã thanh toán' : '❌ Chưa thanh toán'}\n`;
+            if (!isPaid) msg += `Còn lại: ${vnd(remaining)} VNĐ\n`;
+
+            // Generate MoMo payment link (Always)
             try {
               const payment = await this.momoService.createPayment(
-                (unpaidBill as any)._id.toString(),
+                bill._id.toString(),
                 { ownerId: contract.ownerId.toString() } as any,
+                true // Force generation
               );
               msg += `💳 <a href="${payment.payUrl}">Thanh toán qua MoMo</a>\n`;
             } catch (e: any) {
-              console.error(`Could not generate MoMo link for welcome message: ${e.message}`);
+              console.error(`Could not generate MoMo link: ${e.message}`);
             }
-
-            msg += `👉 <a href="${frontendUrl}/payment/${(unpaidBill as any)._id}">Xem chi tiết</a>\n`;
+            msg += `👉 <a href="${frontendUrl}/payment/${bill._id}">Xem chi tiết hoá đơn</a>\n`;
           } else {
             msg += `📅 Hoá đơn sẽ được gửi vào ngày 1 hàng tháng.\n`;
           }
@@ -283,7 +286,7 @@ export class TelegramController {
         await this.telegramService.sendMessage(chatId, '❌ Liên kết không hợp lệ.');
       } else {
         // Handle other commands
-        if (text === '/bill' || text.toLowerCase() === 'bill' || text.toLowerCase() === 'hoadon') {
+        if (text === '/bill' || text.toLowerCase() === 'bill' || text.toLowerCase() === 'hoadon' || text === '/payLink' || text.toLowerCase() === 'paylink') {
           // Check if sender is a tenant
           const tenant = await this.tenantModel.findOne({ telegramChatId: chatId });
           if (tenant) {
@@ -294,41 +297,44 @@ export class TelegramController {
             const contracts = await this.tenantModel.db.model('Contract').find({ tenantId: tenant._id, status: 'ACTIVE' }).lean();
             const contractIds = contracts.map((c: any) => c._id);
 
-            const unpaidBills = await this.tenantModel.db.model('Bill').find({
+            // Find latest bill (any status)
+            const latestBill = await this.tenantModel.db.model('Bill').findOne({
               contractId: { $in: contractIds },
-              status: { $in: ['UNPAID', 'PARTIAL'] },
-            }).sort({ year: -1, month: -1 }).limit(1).lean();
+            }).sort({ year: -1, month: -1 }).lean();
 
-            if (unpaidBills.length > 0) {
-              const bill = unpaidBills[0];
-              const contract = contracts.find((c: any) => c._id.toString() === (bill as any).contractId.toString());
+            if (latestBill) {
+              const bill = latestBill as any;
+              const contract = contracts.find((c: any) => c._id.toString() === bill.contractId.toString());
 
               if (contract) {
-                const remaining = (bill as any).totalAmount - (bill as any).paidAmount;
+                const remaining = bill.totalAmount - bill.paidAmount;
                 const vnd = (n: number) => new Intl.NumberFormat('vi-VN').format(n);
                 const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+                const isPaid = bill.status === 'PAID';
 
-                let msg = `💰 <b>HOÁ ĐƠN CẦN THANH TOÁN</b>\n`;
-                msg += `Tháng ${(bill as any).month}/${(bill as any).year}: ${vnd(remaining)} VNĐ\n`;
+                let msg = `💰 <b>HOÁ ĐƠN GẦN NHẤT (T${bill.month}/${bill.year})</b>\n`;
+                msg += `Trạng thái: ${isPaid ? '✅ Đã thanh toán' : '❌ Chưa thanh toán'}\n`;
+                if (!isPaid) msg += `Còn lại: ${vnd(remaining)} VNĐ\n`;
 
-                // Generate MoMo link
+                // Generate MoMo payment link (Always)
                 try {
                   const payment = await this.momoService.createPayment(
-                    (bill as any)._id.toString(),
+                    bill._id.toString(),
                     { ownerId: (contract as any).ownerId.toString() } as any,
+                    true // Force generation
                   );
                   msg += `💳 <a href="${payment.payUrl}">Thanh toán qua MoMo</a>\n`;
                 } catch (e: any) {
                   console.error(`Could not generate MoMo link for /bill command: ${e.message}`);
                 }
-                msg += `👉 <a href="${frontendUrl}/payment/${(bill as any)._id}">Xem chi tiết</a>`;
+                msg += `👉 <a href="${frontendUrl}/payment/${bill._id}">Xem chi tiết hoá đơn</a>`;
 
                 await this.telegramService.sendMessage(chatId, msg);
               } else {
                 await this.telegramService.sendMessage(chatId, '❌ Không tìm thấy thông tin hợp đồng của hoá đơn.');
               }
             } else {
-              await this.telegramService.sendMessage(chatId, '✅ Bạn không có hoá đơn nào cần thanh toán.');
+              await this.telegramService.sendMessage(chatId, '✅ Bạn chưa có hoá đơn nào.');
             }
           } else {
             // Maybe owner?
