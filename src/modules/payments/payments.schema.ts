@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { PaymentMethod } from './enums/payment-method.enum';
+import { PaymentStatus } from './enums/payment-status.enum';
 
 export type PaymentDocument = HydratedDocument<Payment>;
 
@@ -20,6 +21,13 @@ export class Payment {
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
   ownerId: Types.ObjectId;
+
+  // Transaction tracking fields
+  @Prop({ trim: true, index: true })
+  transactionId?: string;
+
+  @Prop({ default: PaymentStatus.SUCCESS, enum: PaymentStatus })
+  status: PaymentStatus;
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(Payment);

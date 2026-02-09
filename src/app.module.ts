@@ -13,7 +13,8 @@ import { TenantsModule } from './modules/tenants/tenants.module';
 import { ContractsModule } from './modules/contracts/contracts.module';
 import { BillsModule } from './modules/bills/bills.module';
 import { PaymentsModule } from './modules/payments/payments.module';
-import { CustomersModule } from './modules/customers/customers.module';
+import { PaymentSettingsModule } from './modules/payment-settings/payment-settings.module';
+import { MomoModule } from './modules/momo/momo.module';
 import { SeedModule } from './modules/seed/seed.module';
 import { ReportModule } from './modules/report/report.module';
 import { TelegramModule } from './modules/telegram/telegram.module';
@@ -40,13 +41,15 @@ import { CronModule } from './modules/cron/cron.module';
     ContractsModule,
     BillsModule,
     PaymentsModule,
-    CustomersModule,
+    PaymentSettingsModule,
+    MomoModule,
 
-    // New modules
+    // Support modules
     SeedModule,
     ReportModule,
     TelegramModule,
     CronModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }
+

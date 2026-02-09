@@ -6,7 +6,6 @@ import {
   HttpCode,
   HttpStatus,
   Get,
-  Param,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -16,7 +15,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserPayload } from '../../shared/types';
 import { SendMessageDto } from './dto/send-message.dto';
-import { Customer, CustomerDocument } from '../customers/customer.schema';
+import { Tenant, TenantDocument } from '../tenants/tenants.schema';
 import { User, UserDocument } from '../users/users.schema';
 
 @Controller('telegram')
@@ -24,7 +23,7 @@ export class TelegramController {
   constructor(
     private readonly telegramService: TelegramService,
     private readonly reportService: ReportService,
-    @InjectModel(Customer.name) private customerModel: Model<CustomerDocument>,
+    @InjectModel(Tenant.name) private tenantModel: Model<TenantDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) { }
 
@@ -90,7 +89,7 @@ export class TelegramController {
   /**
    * POST /api/telegram/webhook
    * Telegram webhook endpoint (no auth required).
-   * Handles both owner linking (owner_<id>) and customer linking (<customerId>).
+   * Handles both owner linking (owner_<id>) and tenant linking (tenant_<tenantId>).
    */
   @Post('webhook')
   @HttpCode(HttpStatus.OK)
@@ -149,32 +148,40 @@ export class TelegramController {
           return { ok: true };
         }
 
-        // Otherwise, this is a CUSTOMER linking (format: <customerId>)
-        const customerId = payload;
-        console.log(`🔍 Looking up customer: ${customerId}`);
+        // Check if this is a TENANT linking (format: tenant_<tenantId>)
+        if (payload.startsWith('tenant_')) {
+          const tenantId = payload.replace('tenant_', '');
+          console.log(`🔍 Looking up tenant: ${tenantId}`);
 
-        if (!Types.ObjectId.isValid(customerId)) {
-          console.log(`❌ Invalid customer ID format: ${customerId}`);
-          await this.telegramService.sendMessage(chatId, '❌ ID khách hàng không hợp lệ.');
+          if (!Types.ObjectId.isValid(tenantId)) {
+            console.log(`❌ Invalid tenant ID format: ${tenantId}`);
+            await this.telegramService.sendMessage(chatId, '❌ ID khách thuê không hợp lệ.');
+            return { ok: true };
+          }
+
+          const tenant = await this.tenantModel.findById(tenantId);
+          if (!tenant) {
+            console.log(`❌ Tenant not found: ${tenantId}`);
+            await this.telegramService.sendMessage(chatId, '❌ Khách thuê không tồn tại.');
+            return { ok: true };
+          }
+
+          console.log(`✅ Connecting tenant ${tenant.fullName} to Telegram chat ${chatId}`);
+          tenant.telegramChatId = chatId;
+          tenant.telegramLinkedAt = new Date();
+          await tenant.save();
+
+          await this.telegramService.sendMessage(
+            chatId,
+            `✅ Telegram connected successfully!\n\n👋 Chào ${tenant.fullName}!\n\nBạn sẽ nhận được thông báo hoá đơn và thanh toán tại đây.`,
+          );
+          console.log('✅ Tenant webhook processed successfully');
           return { ok: true };
         }
 
-        const customer = await this.customerModel.findById(customerId);
-        if (!customer) {
-          console.log(`❌ Customer not found: ${customerId}`);
-          await this.telegramService.sendMessage(chatId, '❌ Khách hàng không tồn tại.');
-          return { ok: true };
-        }
-
-        console.log(`✅ Connecting customer ${customer.name} to Telegram chat ${chatId}`);
-        customer.telegramChatId = chatId;
-        await customer.save();
-
-        await this.telegramService.sendMessage(
-          chatId,
-          `✅ Telegram connected successfully!\n\n👋 Chào ${customer.name}!\n\nBạn sẽ nhận được thông báo tại đây.`,
-        );
-        console.log('✅ Customer webhook processed successfully');
+        // Unknown payload format
+        console.log(`❌ Unknown payload format: ${payload}`);
+        await this.telegramService.sendMessage(chatId, '❌ Liên kết không hợp lệ.');
       } else {
         console.log(`ℹ️  Ignoring non-/start message: "${text}"`);
       }

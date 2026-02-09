@@ -416,25 +416,25 @@ export class ReportService {
     };
   }
 
-  async generateCustomerMonthlyExcelBuffer(
-    customerId: string,
+  async generateTenantMonthlyExcelBuffer(
+    tenantId: string,
     month: number,
     year: number,
     user: UserPayload,
   ): Promise<Buffer> {
-    // For simplicity, generate a basic Excel for the customer
-    // In a real app, link bills to customers
+    // Generate a basic Excel report for the tenant
     const wb = new ExcelJS.Workbook();
     wb.creator = 'Rental SaaS';
     wb.created = new Date();
 
     const ws = wb.addWorksheet(`Report ${month}-${year}`);
 
-    ws.addRow(['Customer ID', customerId]);
+    ws.addRow(['Tenant ID', tenantId]);
     ws.addRow(['Month', month]);
     ws.addRow(['Year', year]);
-    ws.addRow(['Report', 'Monthly Report for Customer']);
+    ws.addRow(['Report', 'Monthly Report for Tenant']);
 
     return Buffer.from(await wb.xlsx.writeBuffer());
   }
 }
+

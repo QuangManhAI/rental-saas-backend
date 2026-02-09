@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TelegramService } from './telegram.service';
 import { TelegramController } from './telegram.controller';
-import { Customer, CustomerSchema } from '../customers/customer.schema';
+import { Tenant, TenantSchema } from '../tenants/tenants.schema';
 import { User, UserSchema } from '../users/users.schema';
 import { ReportModule } from '../report/report.module';
 
@@ -17,7 +17,7 @@ import { ReportModule } from '../report/report.module';
       signOptions: { expiresIn: '10m' },
     }),
     MongooseModule.forFeature([
-      { name: Customer.name, schema: CustomerSchema },
+      { name: Tenant.name, schema: TenantSchema },
       { name: User.name, schema: UserSchema },
     ]),
     ReportModule,
@@ -27,3 +27,4 @@ import { ReportModule } from '../report/report.module';
   exports: [TelegramService],
 })
 export class TelegramModule { }
+

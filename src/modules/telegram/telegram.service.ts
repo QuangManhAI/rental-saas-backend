@@ -1,11 +1,11 @@
-import { Injectable, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import axios, { AxiosInstance } from 'axios';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { Customer, CustomerDocument } from '../customers/customer.schema';
+import { Tenant, TenantDocument } from '../tenants/tenants.schema';
 import { User, UserDocument } from '../users/users.schema';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class TelegramService {
 
   constructor(
     private readonly configService: ConfigService,
-    @InjectModel(Customer.name) private customerModel: Model<CustomerDocument>,
+    @InjectModel(Tenant.name) private tenantModel: Model<TenantDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {
     this.botToken = this.configService.get<string>('TELEGRAM_BOT_TOKEN', '');
@@ -172,58 +172,58 @@ export class TelegramService {
   }
 
   /* ─────────────────────────────────────────────────────────
-   * CUSTOMER methods - kept for backwards compatibility
+   * TENANT methods - Send to tenants
    * ───────────────────────────────────────────────────────── */
 
   /**
-   * Send message to a customer by their ID.
+   * Send message to a tenant by their ID.
    */
-  async sendMessageToCustomer(customerId: string, text: string): Promise<{ ok: boolean }> {
-    if (!Types.ObjectId.isValid(customerId)) {
-      this.logger.error(`Invalid customerId format: ${customerId}`);
-      throw new BadRequestException('Invalid customer ID format');
+  async sendMessageToTenant(tenantId: string, text: string): Promise<{ ok: boolean }> {
+    if (!Types.ObjectId.isValid(tenantId)) {
+      this.logger.error(`Invalid tenantId format: ${tenantId}`);
+      throw new BadRequestException('Invalid tenant ID format');
     }
 
-    const customer = await this.customerModel.findById(customerId);
-    if (!customer) {
-      this.logger.error(`Customer not found: ${customerId}`);
-      throw new BadRequestException('Customer not found');
+    const tenant = await this.tenantModel.findById(tenantId);
+    if (!tenant) {
+      this.logger.error(`Tenant not found: ${tenantId}`);
+      throw new BadRequestException('Tenant not found');
     }
 
-    if (!customer.telegramChatId) {
-      this.logger.error(`Customer ${customerId} has not linked Telegram`);
-      throw new BadRequestException('Customer has not connected Telegram.');
+    if (!tenant.telegramChatId) {
+      this.logger.error(`Tenant ${tenantId} has not linked Telegram`);
+      throw new BadRequestException('Tenant has not connected Telegram.');
     }
 
-    return this.sendMessage(customer.telegramChatId, text);
+    return this.sendMessage(tenant.telegramChatId, text);
   }
 
   /**
-   * Send Excel document to a customer by their ID.
+   * Send document to a tenant by their ID.
    */
-  async sendExcelToCustomer(
-    customerId: string,
+  async sendDocumentToTenant(
+    tenantId: string,
     fileBuffer: Buffer,
-    filename: string = 'report.xlsx',
-    caption: string = 'Monthly Report',
+    filename: string = 'document.pdf',
+    caption: string = 'Document',
   ): Promise<{ ok: boolean }> {
-    if (!Types.ObjectId.isValid(customerId)) {
-      this.logger.error(`Invalid customerId format: ${customerId}`);
-      throw new BadRequestException('Invalid customer ID format');
+    if (!Types.ObjectId.isValid(tenantId)) {
+      this.logger.error(`Invalid tenantId format: ${tenantId}`);
+      throw new BadRequestException('Invalid tenant ID format');
     }
 
-    const customer = await this.customerModel.findById(customerId);
-    if (!customer) {
-      this.logger.error(`Customer not found: ${customerId}`);
-      throw new BadRequestException('Customer not found');
+    const tenant = await this.tenantModel.findById(tenantId);
+    if (!tenant) {
+      this.logger.error(`Tenant not found: ${tenantId}`);
+      throw new BadRequestException('Tenant not found');
     }
 
-    if (!customer.telegramChatId) {
-      this.logger.error(`Customer ${customerId} has not linked Telegram`);
-      throw new BadRequestException('Customer has not connected Telegram.');
+    if (!tenant.telegramChatId) {
+      this.logger.error(`Tenant ${tenantId} has not linked Telegram`);
+      throw new BadRequestException('Tenant has not connected Telegram.');
     }
 
-    return this.sendDocument(customer.telegramChatId, fileBuffer, filename, caption);
+    return this.sendDocument(tenant.telegramChatId, fileBuffer, filename, caption);
   }
 
   /* ─────────────────────────────────────────────────────────
@@ -231,26 +231,19 @@ export class TelegramService {
    * ───────────────────────────────────────────────────────── */
 
   /**
-   * Send a report file (Excel or any document) to a customer by ID.
+   * Send a report file to a tenant by ID.
    * Reads file from disk and sends via Telegram.
-   *
-   * @param customerId - MongoDB ObjectId of the customer
-   * @param filePath - Absolute path to the file on disk
-   * @param caption - Optional caption for the document
-   * @returns Promise with result status and optional error message
    */
-  async sendReport(
-    customerId: string,
+  async sendReportToTenant(
+    tenantId: string,
     filePath: string,
     caption?: string,
   ): Promise<{ ok: boolean; error?: string }> {
-    // Validate customerId format
-    if (!Types.ObjectId.isValid(customerId)) {
-      this.logger.error(`Invalid customerId format: ${customerId}`);
-      return { ok: false, error: 'Invalid customer ID format' };
+    if (!Types.ObjectId.isValid(tenantId)) {
+      this.logger.error(`Invalid tenantId format: ${tenantId}`);
+      return { ok: false, error: 'Invalid tenant ID format' };
     }
 
-    // 1. Read file from disk
     let fileBuffer: Buffer;
     try {
       fileBuffer = await fs.readFile(filePath);
@@ -264,64 +257,57 @@ export class TelegramService {
       return { ok: false, error: `Error reading file: ${err.message}` };
     }
 
-    // 2. Query database for customer's chat_id
-    const customer = await this.customerModel.findById(customerId);
-    if (!customer) {
-      this.logger.error(`Customer not found: ${customerId}`);
-      return { ok: false, error: 'Customer not found' };
+    const tenant = await this.tenantModel.findById(tenantId);
+    if (!tenant) {
+      this.logger.error(`Tenant not found: ${tenantId}`);
+      return { ok: false, error: 'Tenant not found' };
     }
 
-    if (!customer.telegramChatId) {
-      this.logger.error(`Customer ${customerId} has not linked Telegram`);
-      return { ok: false, error: 'Customer has not connected Telegram' };
+    if (!tenant.telegramChatId) {
+      this.logger.error(`Tenant ${tenantId} has not linked Telegram`);
+      return { ok: false, error: 'Tenant has not connected Telegram' };
     }
 
-    // 3. Extract filename from path
     const filename = path.basename(filePath);
 
-    // 4. Send document via Telegram
     try {
       const result = await this.sendDocument(
-        customer.telegramChatId,
+        tenant.telegramChatId,
         fileBuffer,
         filename,
         caption || `📎 Report: ${filename}`,
       );
       return result;
     } catch (err: any) {
-      // Handle specific Telegram errors
       const errorDesc = err.response?.data?.description || err.message;
 
       if (errorDesc?.includes('blocked')) {
-        this.logger.error(`Bot blocked by user ${customerId}`);
+        this.logger.error(`Bot blocked by user ${tenantId}`);
         return { ok: false, error: 'Bot was blocked by the user' };
       }
       if (errorDesc?.includes('chat not found')) {
-        this.logger.error(`Chat not found for customer ${customerId}`);
+        this.logger.error(`Chat not found for tenant ${tenantId}`);
         return { ok: false, error: 'Chat not found - user may have deleted the chat' };
       }
 
-      this.logger.error(`Failed to send report to ${customerId}: ${errorDesc}`);
+      this.logger.error(`Failed to send report to ${tenantId}: ${errorDesc}`);
       return { ok: false, error: `Telegram error: ${errorDesc}` };
     }
   }
 
   /**
    * Send a report file to an owner by ID.
-   * Similar to sendReport but for owners/users.
    */
   async sendReportToOwner(
     ownerId: string,
     filePath: string,
     caption?: string,
   ): Promise<{ ok: boolean; error?: string }> {
-    // Validate ownerId format
     if (!Types.ObjectId.isValid(ownerId)) {
       this.logger.error(`Invalid ownerId format: ${ownerId}`);
       return { ok: false, error: 'Invalid owner ID format' };
     }
 
-    // Read file from disk
     let fileBuffer: Buffer;
     try {
       fileBuffer = await fs.readFile(filePath);
@@ -335,7 +321,6 @@ export class TelegramService {
       return { ok: false, error: `Error reading file: ${err.message}` };
     }
 
-    // Query database for owner's chat_id
     const owner = await this.userModel.findById(ownerId);
     if (!owner) {
       this.logger.error(`Owner not found: ${ownerId}`);

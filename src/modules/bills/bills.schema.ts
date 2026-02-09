@@ -62,6 +62,13 @@ export class Bill {
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
   ownerId: Types.ObjectId;
+
+  // Invoice alignment fields
+  @Prop({ type: Types.ObjectId, ref: 'Tenant', index: true })
+  tenantId?: Types.ObjectId;
+
+  @Prop()
+  dueDate?: Date;
 }
 
 export const BillSchema = SchemaFactory.createForClass(Bill);

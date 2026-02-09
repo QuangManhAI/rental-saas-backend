@@ -7,7 +7,6 @@ import { User, UserDocument } from '../users/users.schema';
 import { Property, PropertyDocument } from '../properties/properties.schema';
 import { Room, RoomDocument } from '../rooms/rooms.schema';
 import { Tenant, TenantDocument } from '../tenants/tenants.schema';
-import { Customer, CustomerDocument } from '../customers/customer.schema';
 import { Contract, ContractDocument } from '../contracts/contracts.schema';
 import { Bill, BillDocument } from '../bills/bills.schema';
 import { Payment, PaymentDocument } from '../payments/payments.schema';
@@ -30,8 +29,6 @@ export class SeedService {
     @InjectModel(Room.name) private readonly roomModel: Model<RoomDocument>,
     @InjectModel(Tenant.name)
     private readonly tenantModel: Model<TenantDocument>,
-    @InjectModel(Customer.name)
-    private readonly customerModel: Model<CustomerDocument>,
     @InjectModel(Contract.name)
     private readonly contractModel: Model<ContractDocument>,
     @InjectModel(Bill.name) private readonly billModel: Model<BillDocument>,
@@ -39,7 +36,7 @@ export class SeedService {
     private readonly paymentModel: Model<PaymentDocument>,
     @InjectModel(RefreshToken.name)
     private readonly refreshTokenModel: Model<any>,
-  ) {}
+  ) { }
 
   /* ───── helpers ───── */
 
@@ -60,7 +57,6 @@ export class SeedService {
       this.propertyModel.deleteMany({}),
       this.roomModel.deleteMany({}),
       this.tenantModel.deleteMany({}),
-      this.customerModel.deleteMany({}),
       this.contractModel.deleteMany({}),
       this.billModel.deleteMany({}),
       this.paymentModel.deleteMany({}),
@@ -167,26 +163,6 @@ export class SeedService {
       tenants.push(tenant);
     }
     this.logger.log(`  ✔ ${tenants.length} tenants created`);
-
-    // ── 4.5. Customers (5) ───────────────────────────────────
-    const customerData = [
-      { name: 'Nguyễn Văn A', email: 'nguyenvana@gmail.com' },
-      { name: 'Trần Thị B', email: 'tranthib@gmail.com' },
-      { name: 'Lê Văn C', email: 'levanc@gmail.com' },
-      { name: 'Phạm Thị D', email: 'phamthid@gmail.com' },
-      { name: 'Hoàng Văn E', email: 'hoangvane@gmail.com' },
-    ];
-
-    const customers: CustomerDocument[] = [];
-    for (const cd of customerData) {
-      const customer = await this.customerModel.create({
-        name: cd.name,
-        email: cd.email,
-        ownerId,
-      });
-      customers.push(customer);
-    }
-    this.logger.log(`  ✔ ${customers.length} customers created`);
 
     // ── 5. Contracts (10 – one per room) ────────────────────
     const contracts: ContractDocument[] = [];
@@ -338,13 +314,12 @@ export class SeedService {
     // ── Summary ─────────────────────────────────────────────
     const summary = {
       message: 'Seed completed successfully',
-      credentials: { email: 'py@gmail.com', password: '200406' },
+      credentials: { email: 'py.quang.manh.ai@gmail.com', password: '200406' },
       counts: {
         users: 1,
         properties: 1,
         rooms: rooms.length,
         tenants: tenants.length,
-        customers: customers.length,
         contracts: contracts.length,
         bills: bills.length,
         payments: paymentCount,

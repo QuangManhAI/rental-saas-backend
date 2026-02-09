@@ -23,7 +23,7 @@ export class ReportController {
   constructor(
     private readonly reportService: ReportService,
     private readonly telegramService: TelegramService,
-  ) {}
+  ) { }
 
   /**
    * GET /api/reports/monthly/excel?month=6&year=2024
@@ -84,27 +84,28 @@ export class ReportController {
   }
 
   /**
-   * POST /api/reports/monthly/:customerId/telegram
-   * Generate monthly Excel and send to customer's Telegram.
+   * POST /api/reports/monthly/:tenantId/telegram
+   * Generate monthly Excel and send to tenant's Telegram.
    */
-  @Post('monthly/:customerId/telegram')
+  @Post('monthly/:tenantId/telegram')
   @HttpCode(HttpStatus.OK)
-  async sendMonthlyToCustomer(
-    @Param('customerId') customerId: string,
+  async sendMonthlyToTenant(
+    @Param('tenantId') tenantId: string,
     @Query('month') month: number,
     @Query('year') year: number,
     @CurrentUser() user: UserPayload,
   ) {
-    const buffer = await this.reportService.generateCustomerMonthlyExcelBuffer(
-      customerId,
+    const buffer = await this.reportService.generateTenantMonthlyExcelBuffer(
+      tenantId,
       month,
       year,
       user,
     );
-    const result = await this.telegramService.sendExcelToCustomer(customerId, buffer);
+    const result = await this.telegramService.sendDocumentToTenant(tenantId, buffer, `report_${year}_${String(month).padStart(2, '0')}.xlsx`, 'Monthly Report');
     return {
-      message: `Monthly report sent to customer ${customerId}`,
+      message: `Monthly report sent to tenant ${tenantId}`,
       telegram: result,
     };
   }
 }
+

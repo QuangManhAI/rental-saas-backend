@@ -6,6 +6,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -17,7 +18,23 @@ import { ParseObjectIdPipe } from '../../common/pipes/parse-object-id.pipe';
 @Controller('payments')
 @UseGuards(JwtAuthGuard)
 export class PaymentsController {
-  constructor(private readonly paymentsService: PaymentsService) {}
+  constructor(private readonly paymentsService: PaymentsService) { }
+
+  @Get()
+  findAll(
+    @CurrentUser() user: UserPayload,
+    @Query('billId') billId?: string,
+    @Query('method') method?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.paymentsService.findAll(user, {
+      billId,
+      method,
+      startDate,
+      endDate,
+    });
+  }
 
   @Post()
   create(@Body() dto: CreatePaymentDto, @CurrentUser() user: UserPayload) {
@@ -40,3 +57,4 @@ export class PaymentsController {
     return this.paymentsService.remove(id, user);
   }
 }
+

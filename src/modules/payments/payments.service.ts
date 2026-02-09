@@ -22,7 +22,7 @@ export class PaymentsService {
     @InjectModel(Bill.name)
     private readonly billModel: Model<BillDocument>,
     @InjectConnection() private readonly connection: Connection,
-  ) {}
+  ) { }
 
   /**
    * Create a payment and auto-update the bill status.
@@ -97,6 +97,45 @@ export class PaymentsService {
     } finally {
       session.endSession();
     }
+  }
+
+  async findAll(
+    user: UserPayload,
+    filters?: {
+      billId?: string;
+      method?: string;
+      startDate?: string;
+      endDate?: string;
+    },
+  ): Promise<PaymentDocument[]> {
+    const query: Record<string, any> = {
+      ownerId: new Types.ObjectId(user.ownerId),
+    };
+
+    if (filters?.billId) {
+      query.billId = new Types.ObjectId(filters.billId);
+    }
+
+    if (filters?.method) {
+      query.method = filters.method;
+    }
+
+    if (filters?.startDate || filters?.endDate) {
+      query.createdAt = {};
+      if (filters.startDate) {
+        query.createdAt.$gte = new Date(filters.startDate);
+      }
+      if (filters.endDate) {
+        query.createdAt.$lte = new Date(filters.endDate);
+      }
+    }
+
+    return this.paymentModel
+      .find(query)
+      .populate('billId', 'month year roomId contractId')
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
   }
 
   async findAllByBill(
