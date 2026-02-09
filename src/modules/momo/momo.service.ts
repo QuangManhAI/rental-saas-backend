@@ -57,7 +57,7 @@ export class MomoService {
         billId: string,
         user: UserPayload,
         force: boolean = false,
-    ): Promise<{ payUrl: string; orderId: string }> {
+    ): Promise<{ payUrl: string; orderId: string; deeplink?: string; applink?: string; qrCodeUrl?: string }> {
         // 1. Load and validate bill
         const bill = await this.billModel.findOne({
             _id: new Types.ObjectId(billId),
@@ -155,6 +155,9 @@ export class MomoService {
 
             return {
                 payUrl: response.data.payUrl,
+                deeplink: response.data.deeplink,
+                applink: response.data.applink,
+                qrCodeUrl: response.data.qrCodeUrl,
                 orderId,
             };
         } catch (error) {

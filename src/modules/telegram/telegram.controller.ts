@@ -260,8 +260,9 @@ export class TelegramController {
 
             // Generate MoMo payment link (Always)
             let momoLink = '';
+            let payment: any = null;
             try {
-              const payment = await this.momoService.createPayment(
+              payment = await this.momoService.createPayment(
                 bill._id.toString(),
                 { ownerId: contract.ownerId.toString() } as any,
                 true // Force generation
@@ -272,10 +273,12 @@ export class TelegramController {
             }
 
             if (momoLink) {
-              msg += `💳 Link MoMo:\n${momoLink}\n\n`;
+              msg += `👉 Link thanh toán MoMo:\n${momoLink}\n`;
+            } else {
+              msg += `⚠️ Không thể tạo link thanh toán MoMo.\n`;
             }
 
-            msg += `👉 Link hoá đơn:\n${frontendUrl}/payment/${bill._id}\n`;
+            // msg += `👉 Link hoá đơn:\n${frontendUrl}/payment/${bill._id}\n`; // Removed as per request
           } else {
             msg += `📅 Hoá đơn sẽ được gửi vào ngày 1 hàng tháng.\n`;
           }
@@ -324,8 +327,9 @@ export class TelegramController {
 
                 // Generate MoMo payment link (Always)
                 let momoLink = '';
+                let payment: any = null;
                 try {
-                  const payment = await this.momoService.createPayment(
+                  payment = await this.momoService.createPayment(
                     bill._id.toString(),
                     { ownerId: (contract as any).ownerId.toString() } as any,
                     true // Force generation
@@ -336,10 +340,12 @@ export class TelegramController {
                 }
 
                 if (momoLink) {
-                  msg += `💳 Link MoMo:\n${momoLink}\n\n`;
+                  msg += `👉 Link thanh toán MoMo:\n${momoLink}\n`;
+                } else {
+                  msg += `⚠️ Không thể tạo link thanh toán MoMo. Vui lòng liên hệ chủ trọ.\n`;
                 }
 
-                msg += `👉 Link hoá đơn:\n${frontendUrl}/payment/${bill._id}\n`;
+                // msg += `👉 Link hoá đơn:\n${frontendUrl}/payment/${bill._id}\n`; // Removed as per request
 
                 await this.telegramService.sendMessage(chatId, msg);
               } else {

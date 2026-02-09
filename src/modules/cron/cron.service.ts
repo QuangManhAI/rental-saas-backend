@@ -297,8 +297,9 @@ export class CronService {
         if (tenant?.telegramChatId) {
           // Generate MoMo payment link
           let payUrl = null;
+          let payment: any = null;
           try {
-            const payment = await this.momoService.createPayment(
+            payment = await this.momoService.createPayment(
               newBill._id.toString(),
               { ownerId: contract.ownerId.toString() } as any, // Mock user payload
             );
@@ -314,9 +315,14 @@ export class CronService {
           msg += `📝 <i>(Tiền điện/nước sẽ được cập nhật)</i>\n\n`;
 
           if (payUrl) {
-            msg += `💳 Link MoMo:\n${payUrl}\n\n`;
+            msg += `👉 Link thanh toán MoMo:\n${payUrl}\n`;
+            if (payment.deeplink) msg += `🔗 Mở App MoMo:\n${payment.deeplink}\n`;
+            if (payment.qrCodeUrl) msg += `📷 QR Code:\n${payment.qrCodeUrl}\n`;
+          } else {
+            msg += `⚠️ Không thể tạo link thanh toán MoMo.\n\n`;
           }
-          msg += `👉 Link hoá đơn:\n${frontendUrl}/payment/${newBill._id}\n\n`;
+
+          // msg += `👉 Link hoá đơn:\n${frontendUrl}/payment/${newBill._id}\n\n`; // Removed as per request
 
           msg += `⏰ Vui lòng thanh toán trước ngày 5.\n`;
           msg += `━━━━━━━━━━━━━━━━━━━━`;
