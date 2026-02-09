@@ -73,16 +73,21 @@ export class MomoService {
         }
 
         // 2. Get owner's MoMo credentials
-        const settings = await this.paymentSettingsService.getActiveSettings(user.ownerId);
+        // Use getByOwnerId to allow generating links even if settings are not yet "active" (for testing/setup)
+        const settings = await this.paymentSettingsService.getByOwnerId(user.ownerId);
 
-        if (!settings.momoPartnerCode || !settings.momoAccessKey || !settings.momoSecretKey) {
-            // Fallback to sandbox credentials for development
-            this.logger.warn(`Owner ${user.ownerId} has no MoMo credentials, using sandbox fallback`);
+        if (!settings) {
+            this.logger.warn(`Owner ${user.ownerId} has no MoMo credentials`);
         }
 
-        const partnerCode = settings.momoPartnerCode || this.configService.get('MOMO_PARTNER_CODE');
-        const accessKey = settings.momoAccessKey || this.configService.get('MOMO_ACCESS_KEY');
-        const secretKey = settings.momoSecretKey || this.configService.get('MOMO_SECRET_KEY');
+        if (!settings || !settings.momoPartnerCode || !settings.momoAccessKey || !settings.momoSecretKey) {
+            // Fallback to sandbox credentials for development
+            this.logger.warn(`Owner ${user.ownerId} has no configured MoMo credentials, using sandbox fallback`);
+        }
+
+        const partnerCode = settings?.momoPartnerCode || this.configService.get('MOMO_PARTNER_CODE');
+        const accessKey = settings?.momoAccessKey || this.configService.get('MOMO_ACCESS_KEY');
+        const secretKey = settings?.momoSecretKey || this.configService.get('MOMO_SECRET_KEY');
 
         if (!partnerCode || !accessKey || !secretKey) {
             throw new BadRequestException('MoMo credentials not configured');
