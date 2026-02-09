@@ -9,6 +9,9 @@ import { Contract, ContractSchema } from '../contracts/contracts.schema';
 import { Room, RoomSchema } from '../rooms/rooms.schema';
 import { Tenant, TenantSchema } from '../tenants/tenants.schema';
 import { User, UserSchema } from '../users/users.schema';
+import { MomoModule } from '../momo/momo.module';
+import { TelegramModule } from '../telegram/telegram.module';
+import { PaymentSettingsModule } from '../payment-settings/payment-settings.module';
 
 @Module({
   imports: [
@@ -20,8 +23,11 @@ import { User, UserSchema } from '../users/users.schema';
       { name: Tenant.name, schema: TenantSchema },
       { name: User.name, schema: UserSchema },
     ]),
+    MomoModule,
+    TelegramModule,
+    PaymentSettingsModule,
   ],
   controllers: [CronController],
   providers: [CronService],
 })
-export class CronModule {}
+export class CronModule { }

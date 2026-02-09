@@ -10,6 +10,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { TelegramService } from './telegram.service';
+import { MomoService } from '../momo/momo.service';
 import { ReportService } from '../report/report.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -25,6 +26,7 @@ export class TelegramController {
     private readonly reportService: ReportService,
     @InjectModel(Tenant.name) private tenantModel: Model<TenantDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private readonly momoService: MomoService,
   ) { }
 
   /**
@@ -252,7 +254,19 @@ export class TelegramController {
             const vnd = (n: number) => new Intl.NumberFormat('vi-VN').format(n);
             msg += `💰 <b>HOÁ ĐƠN CẦN THANH TOÁN</b>\n`;
             msg += `Tháng ${(unpaidBill as any).month}/${(unpaidBill as any).year}: ${vnd(remaining)} VNĐ\n`;
-            msg += `👉 <a href="${frontendUrl}/payment/${(unpaidBill as any)._id}">Thanh toán ngay</a>\n`;
+
+            // Generate MoMo payment link
+            try {
+              const payment = await this.momoService.createPayment(
+                (unpaidBill as any)._id.toString(),
+                { ownerId: contract.ownerId.toString() } as any,
+              );
+              msg += `💳 <a href="${payment.payUrl}">Thanh toán qua MoMo</a>\n`;
+            } catch (e: any) {
+              console.error(`Could not generate MoMo link for welcome message: ${e.message}`);
+            }
+
+            msg += `👉 <a href="${frontendUrl}/payment/${(unpaidBill as any)._id}">Xem chi tiết</a>\n`;
           } else {
             msg += `📅 Hoá đơn sẽ được gửi vào ngày 1 hàng tháng.\n`;
           }

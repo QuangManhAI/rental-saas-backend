@@ -9,6 +9,7 @@ import { Room, RoomDocument } from '../rooms/rooms.schema';
 import { Tenant, TenantDocument } from '../tenants/tenants.schema';
 import { User, UserDocument } from '../users/users.schema';
 import { TelegramService } from '../telegram/telegram.service';
+import { MomoService } from '../momo/momo.service';
 import { BillStatus } from '../bills/enums/bill-status.enum';
 import { ContractStatus } from '../contracts/enums/contract-status.enum';
 
@@ -25,6 +26,7 @@ export class CronService {
     private readonly tenantModel: Model<TenantDocument>,
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     private readonly telegramService: TelegramService,
+    private readonly momoService: MomoService,
   ) { }
 
   /* ──────────────────────────────────────────────────────────
@@ -293,12 +295,28 @@ export class CronService {
         // Notify tenant via Telegram
         const tenant = await this.tenantModel.findById(contract.tenantId);
         if (tenant?.telegramChatId) {
+          // Generate MoMo payment link
+          let payUrl = null;
+          try {
+            const payment = await this.momoService.createPayment(
+              newBill._id.toString(),
+              { ownerId: contract.ownerId.toString() } as any, // Mock user payload
+            );
+            payUrl = payment.payUrl;
+          } catch (e: any) {
+            this.logger.warn(`Could not generate MoMo link for bill ${newBill._id}: ${e.message}`);
+          }
+
           let msg = `📋 <b>THÔNG BÁO HOÁ ĐƠN THÁNG ${currentMonth}/${currentYear}</b>\n`;
           msg += `━━━━━━━━━━━━━━━━━━━━\n`;
           msg += `🏠 Phòng: ${room.name}\n`;
           msg += `💰 Tiền phòng: ${vnd(contract.rentPrice)} VNĐ\n`;
           msg += `📝 <i>(Tiền điện/nước sẽ được cập nhật)</i>\n\n`;
-          msg += `👉 <a href="${frontendUrl}/payment/${newBill._id}">Thanh toán ngay</a>\n\n`;
+
+          if (payUrl) {
+            msg += `💳 <a href="${payUrl}">Thanh toán qua MoMo</a>\n`;
+          }
+          msg += `👉 <a href="${frontendUrl}/payment/${newBill._id}">Xem chi tiết & Thanh toán</a>\n\n`;
           msg += `⏰ Vui lòng thanh toán trước ngày 5.\n`;
           msg += `━━━━━━━━━━━━━━━━━━━━`;
 

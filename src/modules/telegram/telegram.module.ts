@@ -7,6 +7,8 @@ import { TelegramController } from './telegram.controller';
 import { Tenant, TenantSchema } from '../tenants/tenants.schema';
 import { User, UserSchema } from '../users/users.schema';
 import { ReportModule } from '../report/report.module';
+import { MomoModule } from '../momo/momo.module';
+import { PaymentSettingsModule } from '../payment-settings/payment-settings.module';
 
 @Global()
 @Module({
@@ -21,6 +23,8 @@ import { ReportModule } from '../report/report.module';
       { name: User.name, schema: UserSchema },
     ]),
     ReportModule,
+    MomoModule,
+    PaymentSettingsModule,
   ],
   controllers: [TelegramController],
   providers: [TelegramService],
