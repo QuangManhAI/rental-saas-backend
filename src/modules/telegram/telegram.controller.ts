@@ -282,6 +282,61 @@ export class TelegramController {
         console.log(`❌ Unknown payload format: ${payload}`);
         await this.telegramService.sendMessage(chatId, '❌ Liên kết không hợp lệ.');
       } else {
+        // Handle other commands
+        if (text === '/bill' || text.toLowerCase() === 'bill' || text.toLowerCase() === 'hoadon') {
+          // Check if sender is a tenant
+          const tenant = await this.tenantModel.findOne({ telegramChatId: chatId });
+          if (tenant) {
+            console.log(`🔍 Tenant ${tenant.fullName} requesting bill via ${text}`);
+
+            // Find unpaid bills (latest first)
+            // Need to find contracts for this tenant first
+            const contracts = await this.tenantModel.db.model('Contract').find({ tenantId: tenant._id, status: 'ACTIVE' }).lean();
+            const contractIds = contracts.map((c: any) => c._id);
+
+            const unpaidBills = await this.tenantModel.db.model('Bill').find({
+              contractId: { $in: contractIds },
+              status: { $in: ['UNPAID', 'PARTIAL'] },
+            }).sort({ year: -1, month: -1 }).limit(1).lean();
+
+            if (unpaidBills.length > 0) {
+              const bill = unpaidBills[0];
+              const contract = contracts.find((c: any) => c._id.toString() === (bill as any).contractId.toString());
+
+              if (contract) {
+                const remaining = (bill as any).totalAmount - (bill as any).paidAmount;
+                const vnd = (n: number) => new Intl.NumberFormat('vi-VN').format(n);
+                const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+                let msg = `💰 <b>HOÁ ĐƠN CẦN THANH TOÁN</b>\n`;
+                msg += `Tháng ${(bill as any).month}/${(bill as any).year}: ${vnd(remaining)} VNĐ\n`;
+
+                // Generate MoMo link
+                try {
+                  const payment = await this.momoService.createPayment(
+                    (bill as any)._id.toString(),
+                    { ownerId: (contract as any).ownerId.toString() } as any,
+                  );
+                  msg += `💳 <a href="${payment.payUrl}">Thanh toán qua MoMo</a>\n`;
+                } catch (e: any) {
+                  console.error(`Could not generate MoMo link for /bill command: ${e.message}`);
+                }
+                msg += `👉 <a href="${frontendUrl}/payment/${(bill as any)._id}">Xem chi tiết</a>`;
+
+                await this.telegramService.sendMessage(chatId, msg);
+              } else {
+                await this.telegramService.sendMessage(chatId, '❌ Không tìm thấy thông tin hợp đồng của hoá đơn.');
+              }
+            } else {
+              await this.telegramService.sendMessage(chatId, '✅ Bạn không có hoá đơn nào cần thanh toán.');
+            }
+          } else {
+            // Maybe owner?
+            await this.telegramService.sendMessage(chatId, 'ℹ️ Vui lòng sử dụng tài khoản đã liên kết.');
+          }
+          return { ok: true };
+        }
+
         console.log(`ℹ️  Ignoring non-/start message: "${text}"`);
       }
 
