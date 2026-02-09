@@ -314,9 +314,10 @@ export class CronService {
           msg += `📝 <i>(Tiền điện/nước sẽ được cập nhật)</i>\n\n`;
 
           if (payUrl) {
-            msg += `💳 <a href="${payUrl}">Thanh toán qua MoMo</a>\n`;
+            msg += `💳 Link MoMo:\n${payUrl}\n\n`;
           }
-          msg += `👉 <a href="${frontendUrl}/payment/${newBill._id}">Xem chi tiết & Thanh toán</a>\n\n`;
+          msg += `👉 Link hoá đơn:\n${frontendUrl}/payment/${newBill._id}\n\n`;
+
           msg += `⏰ Vui lòng thanh toán trước ngày 5.\n`;
           msg += `━━━━━━━━━━━━━━━━━━━━`;
 

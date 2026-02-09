@@ -259,17 +259,23 @@ export class TelegramController {
             if (!isPaid) msg += `Còn lại: ${vnd(remaining)} VNĐ\n`;
 
             // Generate MoMo payment link (Always)
+            let momoLink = '';
             try {
               const payment = await this.momoService.createPayment(
                 bill._id.toString(),
                 { ownerId: contract.ownerId.toString() } as any,
                 true // Force generation
               );
-              msg += `💳 <a href="${payment.payUrl}">Thanh toán qua MoMo</a>\n`;
+              momoLink = payment.payUrl;
             } catch (e: any) {
               console.error(`Could not generate MoMo link: ${e.message}`);
             }
-            msg += `👉 <a href="${frontendUrl}/payment/${bill._id}">Xem chi tiết hoá đơn</a>\n`;
+
+            if (momoLink) {
+              msg += `💳 Link MoMo:\n${momoLink}\n\n`;
+            }
+
+            msg += `👉 Link hoá đơn:\n${frontendUrl}/payment/${bill._id}\n`;
           } else {
             msg += `📅 Hoá đơn sẽ được gửi vào ngày 1 hàng tháng.\n`;
           }
@@ -317,17 +323,23 @@ export class TelegramController {
                 if (!isPaid) msg += `Còn lại: ${vnd(remaining)} VNĐ\n`;
 
                 // Generate MoMo payment link (Always)
+                let momoLink = '';
                 try {
                   const payment = await this.momoService.createPayment(
                     bill._id.toString(),
                     { ownerId: (contract as any).ownerId.toString() } as any,
                     true // Force generation
                   );
-                  msg += `💳 <a href="${payment.payUrl}">Thanh toán qua MoMo</a>\n`;
+                  momoLink = payment.payUrl;
                 } catch (e: any) {
                   console.error(`Could not generate MoMo link for /bill command: ${e.message}`);
                 }
-                msg += `👉 <a href="${frontendUrl}/payment/${bill._id}">Xem chi tiết hoá đơn</a>`;
+
+                if (momoLink) {
+                  msg += `💳 Link MoMo:\n${momoLink}\n\n`;
+                }
+
+                msg += `👉 Link hoá đơn:\n${frontendUrl}/payment/${bill._id}\n`;
 
                 await this.telegramService.sendMessage(chatId, msg);
               } else {
