@@ -216,4 +216,115 @@ export class CronService {
       expiringContracts: expiringContracts.length,
     };
   }
+
+  /* ──────────────────────────────────────────────────────────
+   * 3. Monthly Bill Generation & Tenant Notification
+   *    Runs on the 1st of every month at 9:00 AM
+   *    Creates bills for all active contracts, sends Telegram notifications
+   * ────────────────────────────────────────────────────────── */
+
+  @Cron('0 9 1 * *', { name: 'monthly-bill-generation' })
+  async generateMonthlyBillsAndNotify() {
+    this.logger.log('⏰ Running monthly bill generation...');
+
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1;
+    const currentYear = now.getFullYear();
+
+    // Get all active contracts
+    const activeContracts = await this.contractModel
+      .find({ status: ContractStatus.ACTIVE })
+      .lean();
+
+    if (activeContracts.length === 0) {
+      this.logger.log('No active contracts found');
+      return { message: 'No active contracts', billsCreated: 0 };
+    }
+
+    const vnd = (n: number) => new Intl.NumberFormat('vi-VN').format(n);
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+    let billsCreated = 0;
+    let tenantsNotified = 0;
+
+    for (const contract of activeContracts) {
+      try {
+        // Check if bill already exists for this month
+        const existingBill = await this.billModel.findOne({
+          contractId: contract._id,
+          month: currentMonth,
+          year: currentYear,
+        });
+
+        if (existingBill) {
+          this.logger.log(`Bill already exists for contract ${contract._id} in ${currentMonth}/${currentYear}`);
+          continue;
+        }
+
+        // Get room for pricing
+        const room = await this.roomModel.findById(contract.roomId).lean();
+        if (!room) continue;
+
+        // Create bill with default values (owner can update meter readings later)
+        const newBill = await this.billModel.create({
+          contractId: contract._id,
+          roomId: contract.roomId,
+          month: currentMonth,
+          year: currentYear,
+          electricOldIndex: 0,
+          electricNewIndex: 0,
+          electricRate: 3500, // Default rate
+          electricCost: 0,
+          waterOldIndex: 0,
+          waterNewIndex: 0,
+          waterRate: 20000, // Default rate
+          waterCost: 0,
+          roomPrice: contract.rentPrice,
+          otherFee: 0,
+          totalAmount: contract.rentPrice, // Base rent, owner updates utilities later
+          paidAmount: 0,
+          status: BillStatus.UNPAID,
+          ownerId: contract.ownerId,
+        });
+
+        billsCreated++;
+        this.logger.log(`Bill created: ${newBill._id} for contract ${contract._id}`);
+
+        // Notify tenant via Telegram
+        const tenant = await this.tenantModel.findById(contract.tenantId);
+        if (tenant?.telegramChatId) {
+          let msg = `📋 <b>THÔNG BÁO HOÁ ĐƠN THÁNG ${currentMonth}/${currentYear}</b>\n`;
+          msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+          msg += `🏠 Phòng: ${room.name}\n`;
+          msg += `💰 Tiền phòng: ${vnd(contract.rentPrice)} VNĐ\n`;
+          msg += `📝 <i>(Tiền điện/nước sẽ được cập nhật)</i>\n\n`;
+          msg += `👉 <a href="${frontendUrl}/payment/${newBill._id}">Thanh toán ngay</a>\n\n`;
+          msg += `⏰ Vui lòng thanh toán trước ngày 5.\n`;
+          msg += `━━━━━━━━━━━━━━━━━━━━`;
+
+          try {
+            await this.telegramService.sendMessageToTenant(
+              contract.tenantId.toString(),
+              msg,
+            );
+            tenantsNotified++;
+          } catch (err: any) {
+            this.logger.warn(`Could not notify tenant ${contract.tenantId}: ${err.message}`);
+          }
+        }
+      } catch (err: any) {
+        this.logger.error(`Error processing contract ${contract._id}: ${err.message}`);
+      }
+    }
+
+    this.logger.log(`✅ Monthly bill generation done: ${billsCreated} bills created, ${tenantsNotified} tenants notified`);
+
+    return {
+      message: 'Monthly bill generation completed',
+      billsCreated,
+      tenantsNotified,
+      month: currentMonth,
+      year: currentYear,
+    };
+  }
 }

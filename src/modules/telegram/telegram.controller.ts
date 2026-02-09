@@ -111,7 +111,10 @@ export class TelegramController {
       console.log(`📨 Processing message: "${text}" from chat: ${chatId}`);
 
       if (text.startsWith('/start ')) {
-        const payload = text.split(' ')[1];
+        // Robust split to handle multiple spaces
+        const parts = text.split(/\s+/);
+        const payload = parts[1] ? parts[1].trim() : null;
+
         if (!payload) {
           console.log('❌ Invalid /start command: No payload provided');
           await this.telegramService.sendMessage(chatId, '❌ Liên kết không hợp lệ. Vui lòng sử dụng liên kết chính xác.');
@@ -176,6 +179,88 @@ export class TelegramController {
             `✅ Telegram connected successfully!\n\n👋 Chào ${tenant.fullName}!\n\nBạn sẽ nhận được thông báo hoá đơn và thanh toán tại đây.`,
           );
           console.log('✅ Tenant webhook processed successfully');
+          return { ok: true };
+        }
+
+        // Check if this is a CONTRACT linking (format: contract_<contractId>)
+        if (payload.startsWith('contract_')) {
+          const contractId = payload.replace('contract_', '');
+          console.log(`🔍 Looking up contract: ${contractId}`);
+
+          if (!Types.ObjectId.isValid(contractId)) {
+            console.log(`❌ Invalid contract ID format: ${contractId}`);
+            await this.telegramService.sendMessage(chatId, '❌ Mã hợp đồng không hợp lệ.');
+            return { ok: true };
+          }
+
+          // Import Contract model dynamically to avoid circular deps
+          const Contract = this.tenantModel.db.model('Contract');
+          const Bill = this.tenantModel.db.model('Bill');
+
+          const contract = await Contract.findById(contractId).lean() as any;
+          if (!contract) {
+            console.log(`❌ Contract not found: ${contractId}`);
+            await this.telegramService.sendMessage(chatId, '❌ Hợp đồng không tồn tại.');
+            return { ok: true };
+          }
+
+          // Find tenant for this contract
+          const tenant = await this.tenantModel.findById(contract.tenantId);
+          if (!tenant) {
+            console.log(`❌ Tenant not found for contract: ${contractId}`);
+            await this.telegramService.sendMessage(chatId, '❌ Không tìm thấy khách thuê.');
+            return { ok: true };
+          }
+
+          // Check if already linked
+          if (tenant.telegramChatId && tenant.telegramChatId === chatId) {
+            console.log(`ℹ️ Tenant ${tenant.fullName} already linked to this chat`);
+            await this.telegramService.sendMessage(
+              chatId,
+              `👋 Chào ${tenant.fullName}!\n\nTài khoản Telegram của bạn đã được liên kết trước đó.`,
+            );
+            return { ok: true };
+          }
+
+          // Link chatId to tenant
+          console.log(`✅ Linking tenant ${tenant.fullName} to Telegram chat ${chatId}`);
+          tenant.telegramChatId = chatId;
+          tenant.telegramLinkedAt = new Date();
+          await tenant.save();
+
+          // Find any unpaid bill for this contract
+          const unpaidBill = await Bill.findOne({
+            contractId: new Types.ObjectId(contractId),
+            status: { $in: ['UNPAID', 'PARTIAL'] },
+          }).sort({ year: -1, month: -1 }).lean();
+
+          const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+          // Build welcome message with rules
+          let msg = `✅ Liên kết Telegram thành công!\n\n`;
+          msg += `👋 Chào mừng ${tenant.fullName}!\n\n`;
+          msg += `📋 <b>QUY ĐỊNH NHÀ TRỌ</b>\n`;
+          msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+          msg += `• Thanh toán tiền phòng trước ngày 5 hàng tháng\n`;
+          msg += `• Giữ gìn vệ sinh chung\n`;
+          msg += `• Không gây ồn ào sau 22h\n`;
+          msg += `• Báo trước 30 ngày nếu muốn trả phòng\n`;
+          msg += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+          if (unpaidBill) {
+            const remaining = (unpaidBill as any).totalAmount - (unpaidBill as any).paidAmount;
+            const vnd = (n: number) => new Intl.NumberFormat('vi-VN').format(n);
+            msg += `💰 <b>HOÁ ĐƠN CẦN THANH TOÁN</b>\n`;
+            msg += `Tháng ${(unpaidBill as any).month}/${(unpaidBill as any).year}: ${vnd(remaining)} VNĐ\n`;
+            msg += `👉 <a href="${frontendUrl}/payment/${(unpaidBill as any)._id}">Thanh toán ngay</a>\n`;
+          } else {
+            msg += `📅 Hoá đơn sẽ được gửi vào ngày 1 hàng tháng.\n`;
+          }
+
+          msg += `\n🔔 Bạn sẽ nhận thông báo hoá đơn tự động tại đây.`;
+
+          await this.telegramService.sendMessage(chatId, msg);
+          console.log('✅ Contract webhook processed successfully');
           return { ok: true };
         }
 

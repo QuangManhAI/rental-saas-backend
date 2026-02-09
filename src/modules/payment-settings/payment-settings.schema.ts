@@ -31,6 +31,9 @@ export class PaymentSettings {
     @Prop({ trim: true })
     vnpayHashSecret?: string;
 
+    @Prop({ default: 'sandbox', enum: ['sandbox', 'production'] })
+    environment: 'sandbox' | 'production';
+
     @Prop({ default: false })
     isActive: boolean;
 }

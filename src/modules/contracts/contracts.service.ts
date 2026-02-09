@@ -26,17 +26,18 @@ export class ContractsService {
     @InjectModel(Tenant.name)
     private readonly tenantModel: Model<TenantDocument>,
     @InjectConnection() private readonly connection: Connection,
-  ) {}
+  ) { }
 
   /**
    * Create a new contract within a MongoDB transaction.
    * Validates room availability and tenant existence,
    * then atomically creates the contract and marks the room OCCUPIED.
+   * Returns contract with Telegram deep link for staff to share.
    */
   async create(
     dto: CreateContractDto,
     user: UserPayload,
-  ): Promise<ContractDocument> {
+  ): Promise<ContractDocument & { telegramLink: string }> {
     const session = await this.connection.startSession();
     session.startTransaction();
 
@@ -78,8 +79,19 @@ export class ContractsService {
         .lean();
 
       if (existingContract) {
+        // Self-healing: active contract exists but room status was AVAILABLE.
+        // Update room status to OCCUPIED and inform user.
+        await this.roomModel
+          .updateOne(
+            { _id: dto.roomId },
+            { status: RoomStatus.OCCUPIED },
+          )
+          .session(session);
+
+        await session.commitTransaction();
+
         throw new BadRequestException(
-          'An active contract already exists for this room',
+          'Room status inconsistency detected. The room has been marked as OCCUPIED. Please refresh the page.',
         );
       }
 
@@ -112,9 +124,19 @@ export class ContractsService {
       this.logger.log(
         `Contract created: ${contract._id} for room ${dto.roomId}`,
       );
-      return contract;
+
+      // 6. Generate Telegram deep link for staff to share with tenant
+      const botUsername = process.env.TELEGRAM_BOT_USERNAME || 'quangManhAI_bot';
+      const telegramLink = `https://t.me/${botUsername}?start=contract_${contract._id}`;
+
+      return {
+        ...contract.toObject(),
+        telegramLink,
+      } as ContractDocument & { telegramLink: string };
     } catch (error) {
-      await session.abortTransaction();
+      if (session.inTransaction()) {
+        await session.abortTransaction();
+      }
       throw error;
     } finally {
       session.endSession();
@@ -144,7 +166,10 @@ export class ContractsService {
     if (!contract) {
       throw new NotFoundException('Contract not found or access denied');
     }
-    return contract as ContractDocument;
+    return {
+      ...contract,
+      telegramLink: `https://t.me/${process.env.TELEGRAM_BOT_USERNAME || 'quangManhAI_bot'}?start=contract_${contract._id}`,
+    } as any;
   }
 
   /**

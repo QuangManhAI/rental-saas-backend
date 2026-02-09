@@ -30,6 +30,9 @@ export class PaymentSettingsService {
     ): Promise<PaymentSettingsDocument> {
         const ownerObjectId = new Types.ObjectId(ownerId);
 
+        console.log('PaymentSettings upsert - ownerId:', ownerId);
+        console.log('PaymentSettings upsert - dto:', dto);
+
         const updated = await this.paymentSettingsModel.findOneAndUpdate(
             { ownerId: ownerObjectId },
             {
@@ -41,6 +44,7 @@ export class PaymentSettingsService {
             { new: true, upsert: true },
         );
 
+        console.log('PaymentSettings upsert - result:', updated);
         return updated;
     }
 
