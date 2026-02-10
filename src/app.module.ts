@@ -19,6 +19,7 @@ import { SeedModule } from './modules/seed/seed.module';
 import { ReportModule } from './modules/report/report.module';
 import { TelegramModule } from './modules/telegram/telegram.module';
 import { CronModule } from './modules/cron/cron.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { CronModule } from './modules/cron/cron.module';
     ReportModule,
     TelegramModule,
     CronModule,
+    AnalyticsModule,
   ],
 })
 export class AppModule { }
