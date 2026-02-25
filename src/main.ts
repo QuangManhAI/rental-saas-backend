@@ -19,10 +19,7 @@ async function bootstrap() {
   // URI versioning — all routes become /api/v{N}/...
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
 
-  // HTTP security headers — set before CORS and routes
-  app.use(helmet());
-
-  // CORS — never use '*' in production
+  // CORS — must be registered BEFORE helmet to handle OPTIONS preflight
   const allowedOriginsEnv = configService.get<string>('cors.allowedOrigins', '');
   const origins = allowedOriginsEnv
     .split(',')
@@ -40,9 +37,13 @@ async function bootstrap() {
 
   app.enableCors({
     origin: origins.length === 1 ? origins[0] : origins,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
+    allowedHeaders: 'Content-Type,Authorization,Accept',
   });
+
+  // HTTP security headers — after CORS so preflight is not blocked
+  app.use(helmet({ crossOriginResourcePolicy: false }));
  
   // Validation
   app.useGlobalPipes(
