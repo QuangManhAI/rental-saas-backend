@@ -1,0 +1,63 @@
+name: Scheduled Backup
+
+on:
+  schedule:
+    - cron: '0 2 * * *'   # Every day at 02:00 UTC
+  workflow_dispatch:       # Allow manual trigger
+
+jobs:
+  backup:
+    name: MongoDB Backup to R2
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MongoDB tools
+        run: |
+          curl -fsSL https://pgp.mongodb.com/server-7.0.asc | \
+            sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
+          echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] \
+            https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | \
+            sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+          sudo apt-get update -q
+          sudo apt-get install -y mongodb-database-tools
+
+      - name: Configure AWS CLI for R2
+        run: |
+          aws configure set aws_access_key_id "${{ secrets.R2_ACCESS_KEY_ID }}"
+          aws configure set aws_secret_access_key "${{ secrets.R2_SECRET_ACCESS_KEY }}"
+          aws configure set default.region auto
+
+      - name: Run backup script
+        id: backup
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          MONGO_DB: ${{ vars.MONGO_DB || 'rental-saas' }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_BUCKET: ${{ vars.R2_BUCKET || 'excel-rental' }}
+          R2_BACKUP_PREFIX: backups/mongodb
+          BACKUP_BASE_DIR: /tmp/mongo-backups
+          LOCAL_RETENTION_DAYS: '7'
+          R2_RETENTION_DAYS: '30'
+        run: |
+          chmod +x rental-saas-backend/scripts/backup-mongodb.sh
+          rental-saas-backend/scripts/backup-mongodb.sh | tee /tmp/backup.log
+          echo "backup_log<<EOF" >> "$GITHUB_OUTPUT"
+          cat /tmp/backup.log >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Notify Telegram on success
+        if: success()
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.ADMIN_TELEGRAM_CHAT_ID }}" \
+            -d parse_mode="HTML" \
+            -d text="✅ <b>BACKUP THÀNH CÔNG (GitHub Actions)</b>%0A━━━━━━━━━━━━━━━━━━━━%0A🕐 $(date '+%Y-%m-%d %H:%M:%S UTC')"
+
+      - name: Notify Telegram on failure
+        if: failure()
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.ADMIN_TELEGRAM_CHAT_ID }}" \
+            -d parse_mode="HTML" \
+            -d text="❌ <b>BACKUP THẤT BẠI (GitHub Actions)</b>%0A━━━━━━━━━━━━━━━━━━━━%0AXem logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

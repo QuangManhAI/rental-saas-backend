@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ContractsService } from './contracts.service';
 import { CreateContractDto } from './dto/create-contract.dto';
@@ -13,9 +14,11 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserPayload } from '../../shared/types';
 import { ParseObjectIdPipe } from '../../common/pipes/parse-object-id.pipe';
+import { AuditInterceptor } from '../../common/interceptors/audit.interceptor';
 
 @Controller('contracts')
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(AuditInterceptor)
 export class ContractsController {
   constructor(private readonly contractsService: ContractsService) {}
 

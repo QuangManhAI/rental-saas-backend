@@ -11,6 +11,18 @@ export class Tenant {
   @Prop({ trim: true, lowercase: true })
   email: string;
 
+  @Prop({ trim: true })
+  password?: string;
+
+  @Prop({ default: false })
+  isActivated: boolean;
+
+  @Prop({ type: String, default: null })
+  activationToken?: string | null;
+
+  @Prop({ type: Date, default: null })
+  activationTokenExpiresAt?: Date | null;
+
   @Prop({ required: true, trim: true })
   phone: string;
 
@@ -37,3 +49,12 @@ export const TenantSchema = SchemaFactory.createForClass(Tenant);
 
 // Unique identity card per owner
 TenantSchema.index({ ownerId: 1, identityCard: 1 }, { unique: true });
+
+// Sparse unique index on email per owner (allows null/empty emails)
+TenantSchema.index(
+  { ownerId: 1, email: 1 },
+  { unique: true, sparse: true, partialFilterExpression: { email: { $type: 'string', $ne: '' } } },
+);
+
+// Activation token lookup
+TenantSchema.index({ activationToken: 1 }, { sparse: true });

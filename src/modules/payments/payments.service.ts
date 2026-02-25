@@ -8,9 +8,14 @@ import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection, Types } from 'mongoose';
 import { Payment, PaymentDocument } from './payments.schema';
 import { Bill, BillDocument } from '../bills/bills.schema';
+import { Contract, ContractDocument } from '../contracts/contracts.schema';
+import { Tenant, TenantDocument } from '../tenants/tenants.schema';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UserPayload } from '../../shared/types';
 import { BillStatus } from '../bills/enums/bill-status.enum';
+import { MailService } from '../mail/mail.service';
+import { format } from 'date-fns';
+import { vi } from 'date-fns/locale';
 
 @Injectable()
 export class PaymentsService {
@@ -21,7 +26,12 @@ export class PaymentsService {
     private readonly paymentModel: Model<PaymentDocument>,
     @InjectModel(Bill.name)
     private readonly billModel: Model<BillDocument>,
+    @InjectModel(Contract.name)
+    private readonly contractModel: Model<ContractDocument>,
+    @InjectModel(Tenant.name)
+    private readonly tenantModel: Model<TenantDocument>,
     @InjectConnection() private readonly connection: Connection,
+    private readonly mailService: MailService,
   ) { }
 
   /**
@@ -52,6 +62,14 @@ export class PaymentsService {
         throw new BadRequestException('Bill is already fully paid');
       }
 
+      // Prevent overpayment
+      const remaining = bill.totalAmount - bill.paidAmount;
+      if (dto.amount > remaining) {
+        throw new BadRequestException(
+          `Payment amount (${dto.amount}) exceeds remaining balance (${remaining})`,
+        );
+      }
+
       // 2. Create payment
       const [payment] = await this.paymentModel.create(
         [
@@ -66,9 +84,9 @@ export class PaymentsService {
         { session },
       );
 
-      // 3. Sum all payments for this bill
+      // 3. Sum all non-deleted payments for this bill
       const result = await this.paymentModel.aggregate([
-        { $match: { billId: billObjectId } },
+        { $match: { billId: billObjectId, isDeleted: { $ne: true } } },
         { $group: { _id: null, total: { $sum: '$amount' } } },
       ]).session(session);
 
@@ -88,6 +106,11 @@ export class PaymentsService {
       await session.commitTransaction();
       this.logger.log(
         `Payment ${payment._id}: ${dto.amount} for bill ${dto.billId}. Total paid: ${totalPaid}/${bill.totalAmount}`,
+      );
+
+      // Fire-and-forget: send payment confirmation email to tenant
+      this.sendPaymentEmail(bill, dto.amount, dto.method ?? 'CASH', totalPaid).catch((err) =>
+        this.logger.error('Payment email error', err),
       );
 
       return payment;
@@ -175,11 +198,15 @@ export class PaymentsService {
       }
 
       const billId = payment.billId;
-      await payment.deleteOne({ session });
+      // Soft-delete within the session to keep the write atomic
+      (payment as any).isDeleted = true;
+      (payment as any).deletedAt = new Date();
+      (payment as any).deletedBy = new Types.ObjectId(user.userId);
+      await payment.save({ session });
 
-      // Recalculate bill totals
+      // Recalculate bill totals from non-deleted payments only
       const result = await this.paymentModel.aggregate([
-        { $match: { billId } },
+        { $match: { billId, isDeleted: { $ne: true } } },
         { $group: { _id: null, total: { $sum: '$amount' } } },
       ]).session(session);
 
@@ -206,5 +233,36 @@ export class PaymentsService {
     } finally {
       session.endSession();
     }
+  }
+
+  /**
+   * Non-blocking: find tenant email and send payment confirmation.
+   */
+  private async sendPaymentEmail(
+    bill: BillDocument,
+    amount: number,
+    method: string,
+    totalPaid: number,
+  ): Promise<void> {
+    const contract = await this.contractModel
+      .findById(bill.contractId)
+      .lean()
+      .exec();
+    if (!contract) return;
+
+    const tenant = await this.tenantModel.findById(contract.tenantId).lean().exec();
+    if (!tenant?.email) return;
+
+    const isPaid = totalPaid >= bill.totalAmount;
+    await this.mailService.sendPaymentConfirmation(tenant.email, {
+      tenantName: tenant.fullName,
+      amount,
+      method,
+      month: bill.month,
+      year: bill.year,
+      paidAt: format(new Date(), 'dd/MM/yyyy HH:mm', { locale: vi }),
+      remainingAmount: Math.max(0, bill.totalAmount - totalPaid),
+      isPaid,
+    });
   }
 }

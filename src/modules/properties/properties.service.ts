@@ -5,6 +5,8 @@ import { Property, PropertyDocument } from './properties.schema';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { UserPayload } from '../../shared/types';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { PaginatedResponse, buildPaginatedResponse } from '../../common/dto/paginated-response.dto';
 
 @Injectable()
 export class PropertiesService {
@@ -23,11 +25,30 @@ export class PropertiesService {
     });
   }
 
-  async findAll(user: UserPayload): Promise<PropertyDocument[]> {
-    return this.propertyModel
-      .find({ ownerId: new Types.ObjectId(user.ownerId) })
-      .lean()
-      .exec();
+  async findAll(
+    user: UserPayload,
+    query: PaginationDto = {},
+  ): Promise<PaginatedResponse<PropertyDocument>> {
+    const { page = 1, limit = 20, search } = query;
+    const skip = (page - 1) * limit;
+
+    const filter: Record<string, unknown> = {
+      ownerId: new Types.ObjectId(user.ownerId),
+    };
+
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { address: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    const [data, total] = await Promise.all([
+      this.propertyModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean().exec(),
+      this.propertyModel.countDocuments(filter),
+    ]);
+
+    return buildPaginatedResponse(data as PropertyDocument[], total, page, limit);
   }
 
   async findOne(id: string, user: UserPayload): Promise<PropertyDocument> {

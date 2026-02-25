@@ -2,8 +2,12 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { PaymentMethod } from './enums/payment-method.enum';
 import { PaymentStatus } from './enums/payment-status.enum';
+import {
+  softDeletePlugin,
+  SoftDeleteFields,
+} from '../../common/plugins/soft-delete.plugin';
 
-export type PaymentDocument = HydratedDocument<Payment>;
+export type PaymentDocument = HydratedDocument<Payment> & SoftDeleteFields;
 
 @Schema({ timestamps: true })
 export class Payment {
@@ -22,8 +26,10 @@ export class Payment {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
   ownerId: Types.ObjectId;
 
-  // Transaction tracking fields
-  @Prop({ trim: true, index: true })
+  // Gateway transaction ID (MoMo transId, VNPay transactionNo, etc.)
+  // Sparse unique index: allows multiple null values but prevents duplicate IDs.
+  // This is the primary idempotency guard for payment gateway IPN callbacks.
+  @Prop({ trim: true })
   transactionId?: string;
 
   @Prop({ default: PaymentStatus.SUCCESS, enum: PaymentStatus })
@@ -31,3 +37,9 @@ export class Payment {
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(Payment);
+
+PaymentSchema.plugin(softDeletePlugin);
+
+// Unique sparse index on transactionId — prevents duplicate payment records
+// for the same gateway transaction (MoMo IPN retry protection).
+PaymentSchema.index({ transactionId: 1 }, { unique: true, sparse: true });

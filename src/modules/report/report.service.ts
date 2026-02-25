@@ -38,6 +38,18 @@ export class ReportService {
     return new Intl.NumberFormat('vi-VN').format(amount);
   }
 
+  /** Returns the effective "as-of" date for the report and whether the month is still in progress. */
+  private getReportRange(month: number, year: number): { asOfDay: number; isPartial: boolean } {
+    const now = new Date();
+    const isPartial = now.getFullYear() === year && now.getMonth() + 1 === month;
+    const asOfDay = isPartial ? now.getDate() : new Date(year, month, 0).getDate(); // last day of month
+    return { asOfDay, isPartial };
+  }
+
+  private pad(n: number): string {
+    return String(n).padStart(2, '0');
+  }
+
   private styleHeaderRow(row: ExcelJS.Row) {
     row.eachCell((cell) => {
       cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
@@ -106,19 +118,24 @@ export class ReportService {
     wb.creator = 'Rental SaaS';
     wb.created = new Date();
 
+    const { asOfDay, isPartial } = this.getReportRange(month, year);
+
     const ws = wb.addWorksheet(`Tháng ${month}-${year}`);
 
     // Title
-    ws.mergeCells('A1:I1');
+    ws.mergeCells('A1:K1');
     const titleCell = ws.getCell('A1');
-    titleCell.value = `BÁO CÁO THU CHI THÁNG ${month}/${year}`;
+    const dateRangeNote = isPartial
+      ? ` (01/${this.pad(month)} — ${this.pad(asOfDay)}/${this.pad(month)}, tháng chưa kết thúc)`
+      : '';
+    titleCell.value = `BÁO CÁO THU CHI THÁNG ${month}/${year}${dateRangeNote}`;
     titleCell.font = { bold: true, size: 16, color: { argb: 'FF1E40AF' } };
     titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
     ws.getRow(1).height = 36;
 
     // Property info
     if (properties.length > 0) {
-      ws.mergeCells('A2:I2');
+      ws.mergeCells('A2:K2');
       const propCell = ws.getCell('A2');
       propCell.value = `${properties[0].name} — ${properties[0].address}`;
       propCell.font = { italic: true, size: 11 };
@@ -362,7 +379,10 @@ export class ReportService {
     // Generate Excel buffer
     const buffer = await this.generateMonthlyExcelBuffer(month, year, user);
     const filename = `report_${year}_${String(month).padStart(2, '0')}.xlsx`;
-    const caption = `📊 Báo cáo thu chi tháng ${month}/${year}`;
+    const { asOfDay, isPartial } = this.getReportRange(month, year);
+    const caption = isPartial
+      ? `📊 Báo cáo thu chi tháng ${month}/${year} (01/${this.pad(month)} — ${this.pad(asOfDay)}/${this.pad(month)}, tháng chưa kết thúc)`
+      : `📊 Báo cáo thu chi tháng ${month}/${year}`;
 
     // Send to owner
     const result = await this.telegramService.sendDocumentToOwner(

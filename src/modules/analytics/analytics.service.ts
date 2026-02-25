@@ -1,4 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Bill, BillDocument } from '../bills/bills.schema';
@@ -7,16 +9,24 @@ import { Room, RoomDocument } from '../rooms/rooms.schema';
 import { GetDashboardAnalyticsDto, GroupBy } from './dto/get-dashboard-analytics.dto';
 import dayjs from 'dayjs';
 
+const ANALYTICS_TTL = 5 * 60 * 1000; // 5 minutes in ms
+
 @Injectable()
 export class AnalyticsService {
     constructor(
         @InjectModel(Bill.name) private billModel: Model<BillDocument>,
         @InjectModel(Contract.name) private contractModel: Model<ContractDocument>,
         @InjectModel(Room.name) private roomModel: Model<RoomDocument>,
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
     ) { }
 
     async getDashboardAnalytics(ownerIdString: string, dto: GetDashboardAnalyticsDto) {
         const { from, to, groupBy, houseId } = dto;
+
+        const cacheKey = `analytics:${ownerIdString}:${from}:${to}:${groupBy}:${houseId || 'all'}`;
+        const cached = await this.cacheManager.get(cacheKey);
+        if (cached) return cached;
+
         const ownerId = new Types.ObjectId(ownerIdString);
         const startDate = new Date(from);
         const endDate = new Date(to);
@@ -27,10 +37,9 @@ export class AnalyticsService {
         // 2. Business Trend Analytics
         const trendStats = await this.getTrendStats(ownerId, startDate, endDate, groupBy, houseId);
 
-        return {
-            revenue: revenueStats,
-            trends: trendStats,
-        };
+        const result = { revenue: revenueStats, trends: trendStats };
+        await this.cacheManager.set(cacheKey, result, ANALYTICS_TTL);
+        return result;
     }
 
     private async getRevenueStats(

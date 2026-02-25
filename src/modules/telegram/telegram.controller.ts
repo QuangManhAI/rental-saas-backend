@@ -6,9 +6,14 @@ import {
   HttpCode,
   HttpStatus,
   Get,
+  Headers,
+  ForbiddenException,
+  Logger,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { TelegramService } from './telegram.service';
 import { MomoService } from '../momo/momo.service';
 import { ReportService } from '../report/report.service';
@@ -21,13 +26,16 @@ import { User, UserDocument } from '../users/users.schema';
 
 @Controller('telegram')
 export class TelegramController {
+  private readonly logger = new Logger(TelegramController.name);
+
   constructor(
     private readonly telegramService: TelegramService,
     private readonly reportService: ReportService,
     @InjectModel(Tenant.name) private tenantModel: Model<TenantDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private readonly momoService: MomoService,
-  ) { }
+    private readonly configService: ConfigService,
+  ) {}
 
   /**
    * GET /api/telegram/link-url
@@ -90,27 +98,37 @@ export class TelegramController {
 
   /**
    * POST /api/telegram/webhook
-   * Telegram webhook endpoint (no auth required).
-   * Handles both owner linking (owner_<id>) and tenant linking (tenant_<tenantId>).
+   * Telegram webhook endpoint — verified by X-Telegram-Bot-Api-Secret-Token header.
+   * Rate limited to 60 req/min to allow Telegram retries while preventing abuse.
    */
   @Post('webhook')
   @HttpCode(HttpStatus.OK)
-  async handleWebhook(@Body() update: any) {
-    console.log('=== TELEGRAM WEBHOOK RECEIVED ===');
-    console.log(JSON.stringify(update, null, 2));
-    console.log('=================================');
+  @Throttle({ default: { limit: 60, ttl: 60_000 } })
+  async handleWebhook(
+    @Headers('x-telegram-bot-api-secret-token') secretToken: string,
+    @Body() update: any,
+  ) {
+    // Verify the request came from Telegram using the shared webhook secret
+    const expectedSecret = this.configService.get<string>('TELEGRAM_WEBHOOK_SECRET');
+    if (expectedSecret && secretToken !== expectedSecret) {
+      this.logger.warn(
+        `Telegram webhook rejected: invalid secret token (received: ${secretToken?.substring(0, 8)}...)`,
+      );
+      throw new ForbiddenException('Invalid webhook secret');
+    }
+
+    this.logger.debug('Telegram webhook received');
 
     try {
       const message = update.message;
       if (!message || !message.text || !message.chat) {
-        console.log('❌ Webhook ignored: Missing message, text, or chat');
         return { ok: true };
       }
 
       const chatId = message.chat.id.toString();
       const text = message.text.trim();
 
-      console.log(`📨 Processing message: "${text}" from chat: ${chatId}`);
+      this.logger.log(`Telegram message: "${text}" from chatId=${chatId}`);
 
       if (text.startsWith('/start ')) {
         // Robust split to handle multiple spaces
@@ -378,6 +396,7 @@ export class TelegramController {
   @Post('send')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @SkipThrottle()
   async sendMessage(@Body() dto: SendMessageDto) {
     return this.telegramService.sendMessage(dto.chatId, dto.text);
   }
@@ -389,6 +408,7 @@ export class TelegramController {
   @Post('test')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @SkipThrottle()
   async test(@CurrentUser() user: UserPayload) {
     return this.telegramService.sendMessageToOwner(
       user.ownerId,

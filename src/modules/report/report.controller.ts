@@ -13,12 +13,14 @@ import { Response } from 'express';
 import { ReportService } from './report.service';
 import { TelegramService } from '../telegram/telegram.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { FeatureGuard } from '../../common/guards/feature.guard';
+import { RequireFeature } from '../../common/decorators/require-feature.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserPayload } from '../../shared/types';
 import { MonthlyReportDto } from './dto/monthly-report.dto';
 
 @Controller('reports')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, FeatureGuard)
 export class ReportController {
   constructor(
     private readonly reportService: ReportService,
@@ -30,6 +32,7 @@ export class ReportController {
    * Generates and downloads monthly Excel file directly.
    */
   @Get('monthly/excel')
+  @RequireFeature('reports')
   async downloadMonthlyExcel(
     @Query() dto: MonthlyReportDto,
     @CurrentUser() user: UserPayload,
@@ -53,6 +56,7 @@ export class ReportController {
    * Generates a yearly revenue summary Excel.
    */
   @Get('revenue')
+  @RequireFeature('reports')
   async revenueReport(
     @Query('year') year: number,
     @CurrentUser() user: UserPayload,
@@ -66,6 +70,7 @@ export class ReportController {
    */
   @Get('monthly/telegram')
   @HttpCode(HttpStatus.OK)
+  @RequireFeature('telegram')
   async sendMonthlyToTelegram(@Query() dto: MonthlyReportDto, @CurrentUser() user: UserPayload) {
     return this.reportService.sendMonthlyToTelegram(dto.month, dto.year, user);
   }
@@ -76,6 +81,7 @@ export class ReportController {
    */
   @Get('revenue/telegram')
   @HttpCode(HttpStatus.OK)
+  @RequireFeature('telegram')
   async revenueToTelegram(
     @Query('year') year: number,
     @CurrentUser() user: UserPayload,
@@ -89,6 +95,7 @@ export class ReportController {
    */
   @Post('monthly/:tenantId/telegram')
   @HttpCode(HttpStatus.OK)
+  @RequireFeature('telegram')
   async sendMonthlyToTenant(
     @Param('tenantId') tenantId: string,
     @Query('month') month: number,
@@ -108,4 +115,3 @@ export class ReportController {
     };
   }
 }
-

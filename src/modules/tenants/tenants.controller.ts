@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -16,6 +17,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserPayload } from '../../shared/types';
 import { ParseObjectIdPipe } from '../../common/pipes/parse-object-id.pipe';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Controller('tenants')
 @UseGuards(JwtAuthGuard)
@@ -31,8 +33,11 @@ export class TenantsController {
   }
 
   @Get()
-  findAll(@CurrentUser() user: UserPayload) {
-    return this.tenantsService.findAll(user);
+  findAll(
+    @CurrentUser() user: UserPayload,
+    @Query() query: PaginationDto,
+  ) {
+    return this.tenantsService.findAll(user, query);
   }
 
   @Get(':id')
@@ -58,6 +63,14 @@ export class TenantsController {
     @CurrentUser() user: UserPayload,
   ) {
     return this.tenantsService.remove(id, user);
+  }
+
+  @Post(':id/resend-activation')
+  resendActivation(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @CurrentUser() user: UserPayload,
+  ) {
+    return this.tenantsService.resendActivation(id, user);
   }
 
   @Get(':id/telegram-link')

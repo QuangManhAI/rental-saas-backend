@@ -29,6 +29,18 @@ export class User {
 
   @Prop({ trim: true, index: true })
   telegramChatId?: string;
+
+  @Prop({ default: false })
+  emailVerified: boolean;
+
+  @Prop({ trim: true, index: true, sparse: true })
+  emailVerificationToken?: string;
+
+  @Prop()
+  emailVerificationExpires?: Date;
+
+  @Prop({ default: false })
+  isOnboardingComplete: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

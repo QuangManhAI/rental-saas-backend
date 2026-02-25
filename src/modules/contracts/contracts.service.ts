@@ -6,17 +6,23 @@ import {
 } from '@nestjs/common';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection, Types } from 'mongoose';
+import { ConfigService } from '@nestjs/config';
 import { Contract, ContractDocument } from './contracts.schema';
 import { Room, RoomDocument } from '../rooms/rooms.schema';
 import { Tenant, TenantDocument } from '../tenants/tenants.schema';
+import { Property, PropertyDocument } from '../properties/properties.schema';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { UserPayload } from '../../shared/types';
 import { RoomStatus } from '../rooms/enums/room-status.enum';
 import { ContractStatus } from './enums/contract-status.enum';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class ContractsService {
   private readonly logger = new Logger(ContractsService.name);
+
+  private readonly frontendUrl: string;
+  private readonly botUsername: string;
 
   constructor(
     @InjectModel(Contract.name)
@@ -25,8 +31,15 @@ export class ContractsService {
     private readonly roomModel: Model<RoomDocument>,
     @InjectModel(Tenant.name)
     private readonly tenantModel: Model<TenantDocument>,
+    @InjectModel(Property.name)
+    private readonly propertyModel: Model<PropertyDocument>,
     @InjectConnection() private readonly connection: Connection,
-  ) { }
+    private readonly mailService: MailService,
+    private readonly configService: ConfigService,
+  ) {
+    this.frontendUrl = configService.get<string>('frontendUrl') || 'http://localhost:3000';
+    this.botUsername = configService.get<string>('telegram.botUsername') || 'quangManhAI_bot';
+  }
 
   /**
    * Create a new contract within a MongoDB transaction.
@@ -126,8 +139,12 @@ export class ContractsService {
       );
 
       // 6. Generate Telegram deep link for staff to share with tenant
-      const botUsername = process.env.TELEGRAM_BOT_USERNAME || 'quangManhAI_bot';
-      const telegramLink = `https://t.me/${botUsername}?start=contract_${contract._id}`;
+      const telegramLink = `https://t.me/${this.botUsername}?start=contract_${contract._id}`;
+
+      // 7. Fire-and-forget: send contract confirmation email to tenant
+      this.sendContractEmail(contract, tenant, room, telegramLink).catch((err) =>
+        this.logger.error(`Failed to send contract email: ${err.message}`),
+      );
 
       return {
         ...contract.toObject(),
@@ -136,6 +153,12 @@ export class ContractsService {
     } catch (error) {
       if (session.inTransaction()) {
         await session.abortTransaction();
+      }
+      // MongoDB duplicate key on unique_active_contract_per_room index
+      if ((error as any)?.code === 11000) {
+        throw new BadRequestException(
+          'Room already has an active contract. Double-booking prevented.',
+        );
       }
       throw error;
     } finally {
@@ -168,7 +191,7 @@ export class ContractsService {
     }
     return {
       ...contract,
-      telegramLink: `https://t.me/${process.env.TELEGRAM_BOT_USERNAME || 'quangManhAI_bot'}?start=contract_${contract._id}`,
+      telegramLink: `https://t.me/${this.botUsername}?start=contract_${contract._id}`,
     } as any;
   }
 
@@ -220,5 +243,36 @@ export class ContractsService {
     } finally {
       session.endSession();
     }
+  }
+
+  private async sendContractEmail(
+    contract: ContractDocument,
+    tenant: any,
+    room: RoomDocument,
+    telegramLink: string,
+  ): Promise<void> {
+    if (!tenant.email) return;
+
+    // Populate property info from room
+    const property = await this.propertyModel.findById(room.propertyId).lean();
+
+    const fmtDate = (d: Date) =>
+      d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+    await this.mailService.sendContractCreated(tenant.email, {
+      tenantName: tenant.fullName,
+      propertyName: property?.name ?? 'N/A',
+      propertyAddress: property?.address ?? 'N/A',
+      roomName: room.name,
+      roomArea: room.area,
+      startDate: fmtDate(new Date(contract.startDate)),
+      endDate: fmtDate(new Date(contract.endDate)),
+      rentPrice: contract.rentPrice,
+      deposit: contract.deposit ?? 0,
+      telegramLink,
+      portalUrl: `${this.frontendUrl}/tenant`,
+    });
+
+    this.logger.log(`Contract email sent to tenant ${tenant.email}`);
   }
 }

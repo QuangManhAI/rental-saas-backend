@@ -11,6 +11,8 @@ import { CreateBillDto } from './dto/create-bill.dto';
 import { UserPayload } from '../../shared/types';
 import { BillStatus } from './enums/bill-status.enum';
 import { ContractStatus } from '../contracts/enums/contract-status.enum';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { PaginatedResponse, buildPaginatedResponse } from '../../common/dto/paginated-response.dto';
 
 @Injectable()
 export class BillsService {
@@ -79,17 +81,35 @@ export class BillsService {
     });
   }
 
-  async findAll(user: UserPayload): Promise<BillDocument[]> {
-    return this.billModel
-      .find({ ownerId: new Types.ObjectId(user.ownerId) })
-      .populate({
-        path: 'contractId',
-        select: 'startDate endDate status',
-      })
-      .populate('roomId', 'name')
-      .sort({ year: -1, month: -1 })
-      .lean()
-      .exec();
+  async findAll(
+    user: UserPayload,
+    query: PaginationDto & { status?: BillStatus; month?: number; year?: number } = {},
+  ): Promise<PaginatedResponse<BillDocument>> {
+    const { page = 1, limit = 20, status, month, year } = query;
+    const skip = (page - 1) * limit;
+
+    const filter: Record<string, unknown> = {
+      ownerId: new Types.ObjectId(user.ownerId),
+    };
+
+    if (status) filter.status = status;
+    if (month) filter.month = month;
+    if (year) filter.year = year;
+
+    const [data, total] = await Promise.all([
+      this.billModel
+        .find(filter)
+        .populate({ path: 'contractId', select: 'startDate endDate status' })
+        .populate('roomId', 'name')
+        .sort({ year: -1, month: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean()
+        .exec(),
+      this.billModel.countDocuments(filter),
+    ]);
+
+    return buildPaginatedResponse(data as BillDocument[], total, page, limit);
   }
 
   async findOne(id: string, user: UserPayload): Promise<BillDocument> {
@@ -125,8 +145,34 @@ export class BillsService {
       throw new BadRequestException('Cannot delete a paid bill');
     }
 
-    await bill.deleteOne();
+    await bill.softDelete(user.userId);
     return { message: 'Bill deleted successfully' };
+  }
+
+  async findDeleted(user: UserPayload): Promise<BillDocument[]> {
+    return (this.billModel as any)
+      .findDeleted({ ownerId: new Types.ObjectId(user.ownerId) })
+      .sort({ deletedAt: -1 })
+      .lean()
+      .exec();
+  }
+
+  async restore(id: string, user: UserPayload): Promise<BillDocument> {
+    const bill = await this.billModel.findOne({
+      _id: id,
+      ownerId: new Types.ObjectId(user.ownerId),
+      isDeleted: true,
+    } as any);
+
+    if (!bill) {
+      throw new NotFoundException('Deleted bill not found or access denied');
+    }
+
+    (bill as any).isDeleted = false;
+    (bill as any).deletedAt = null;
+    (bill as any).deletedBy = null;
+    await bill.save();
+    return bill;
   }
 
   /**

@@ -16,23 +16,29 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserPayload } from '../../shared/types';
 import { ParseObjectIdPipe } from '../../common/pipes/parse-object-id.pipe';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { SubscriptionService } from '../subscription/subscription.service';
 
 @Controller('rooms')
 @UseGuards(JwtAuthGuard)
 export class RoomsController {
-  constructor(private readonly roomsService: RoomsService) {}
+  constructor(
+    private readonly roomsService: RoomsService,
+    private readonly subscriptionService: SubscriptionService,
+  ) {}
 
   @Post()
-  create(@Body() dto: CreateRoomDto, @CurrentUser() user: UserPayload) {
+  async create(@Body() dto: CreateRoomDto, @CurrentUser() user: UserPayload) {
+    await this.subscriptionService.checkRoomLimit(user.ownerId);
     return this.roomsService.create(dto, user);
   }
 
   @Get()
   findAll(
     @CurrentUser() user: UserPayload,
-    @Query('propertyId') propertyId?: string,
+    @Query() query: PaginationDto & { propertyId?: string },
   ) {
-    return this.roomsService.findAll(user, propertyId);
+    return this.roomsService.findAll(user, query);
   }
 
   @Get(':id')

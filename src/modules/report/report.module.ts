@@ -10,6 +10,8 @@ import { Room, RoomSchema } from '../rooms/rooms.schema';
 import { Tenant, TenantSchema } from '../tenants/tenants.schema';
 import { Payment, PaymentSchema } from '../payments/payments.schema';
 import { Property, PropertySchema } from '../properties/properties.schema';
+import { SubscriptionModule } from '../subscription/subscription.module';
+import { FeatureGuard } from '../../common/guards/feature.guard';
 
 @Module({
   imports: [
@@ -21,9 +23,10 @@ import { Property, PropertySchema } from '../properties/properties.schema';
       { name: Payment.name, schema: PaymentSchema },
       { name: Property.name, schema: PropertySchema },
     ]),
+    SubscriptionModule,
   ],
   controllers: [ReportController],
-  providers: [ReportService, R2Service],
+  providers: [ReportService, R2Service, FeatureGuard],
   exports: [ReportService, R2Service],
 })
 export class ReportModule {}

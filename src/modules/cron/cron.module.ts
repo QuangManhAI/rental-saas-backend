@@ -12,6 +12,7 @@ import { User, UserSchema } from '../users/users.schema';
 import { MomoModule } from '../momo/momo.module';
 import { TelegramModule } from '../telegram/telegram.module';
 import { PaymentSettingsModule } from '../payment-settings/payment-settings.module';
+import { SubscriptionModule } from '../subscription/subscription.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { PaymentSettingsModule } from '../payment-settings/payment-settings.modu
     MomoModule,
     TelegramModule,
     PaymentSettingsModule,
+    SubscriptionModule,
   ],
   controllers: [CronController],
   providers: [CronService],

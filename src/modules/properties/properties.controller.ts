@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { PropertiesService } from './properties.service';
@@ -15,23 +16,32 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserPayload } from '../../shared/types';
 import { ParseObjectIdPipe } from '../../common/pipes/parse-object-id.pipe';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { SubscriptionService } from '../subscription/subscription.service';
 
 @Controller('properties')
 @UseGuards(JwtAuthGuard)
 export class PropertiesController {
-  constructor(private readonly propertiesService: PropertiesService) {}
+  constructor(
+    private readonly propertiesService: PropertiesService,
+    private readonly subscriptionService: SubscriptionService,
+  ) {}
 
   @Post()
-  create(
+  async create(
     @Body() dto: CreatePropertyDto,
     @CurrentUser() user: UserPayload,
   ) {
+    await this.subscriptionService.checkPropertyLimit(user.ownerId);
     return this.propertiesService.create(dto, user);
   }
 
   @Get()
-  findAll(@CurrentUser() user: UserPayload) {
-    return this.propertiesService.findAll(user);
+  findAll(
+    @CurrentUser() user: UserPayload,
+    @Query() query: PaginationDto,
+  ) {
+    return this.propertiesService.findAll(user, query);
   }
 
   @Get(':id')

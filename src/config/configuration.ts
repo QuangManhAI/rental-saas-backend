@@ -25,5 +25,32 @@ export default () => ({
   // Telegram Bot (only botToken needed - chatIds come from customer records)
   telegram: {
     botToken: process.env.TELEGRAM_BOT_TOKEN || '',
+    botUsername: process.env.TELEGRAM_BOT_USERNAME || 'quangManhAI_bot',
+  },
+  // Tenant JWT (separate secret from owner JWT)
+  tenantJwt: {
+    secret: process.env.TENANT_JWT_SECRET || 'change-me-tenant-secret',
+    expiresIn: process.env.TENANT_JWT_EXPIRATION || '30d',
+  },
+  // Frontend URL (for magic-link generation)
+  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3001',
+  // VNPay config
+  vnpay: {
+    returnUrl: process.env.VNPAY_RETURN_URL || '',
+    ipnUrl: process.env.VNPAY_IPN_URL || '',
+  },
+  // Redis cache
+  redis: {
+    url: process.env.REDIS_URL || '',
+    host: process.env.REDIS_HOST || 'localhost',
+    port: parseInt(process.env.REDIS_PORT || '6379', 10),
+  },
+  // SMTP Email
+  mail: {
+    host: process.env.SMTP_HOST || '',
+    port: parseInt(process.env.SMTP_PORT || '587', 10),
+    user: process.env.SMTP_USER || '',
+    pass: process.env.SMTP_PASS || '',
+    from: process.env.MAIL_FROM || 'Rental SaaS <noreply@rental.local>',
   },
 });

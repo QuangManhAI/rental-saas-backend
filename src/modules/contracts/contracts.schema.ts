@@ -35,3 +35,15 @@ export const ContractSchema = SchemaFactory.createForClass(Contract);
 
 ContractSchema.index({ roomId: 1, status: 1 });
 ContractSchema.index({ ownerId: 1, status: 1 });
+
+// Partial unique index: enforce at DB level that only ONE active contract
+// can exist per room. This prevents race-condition double-booking even when
+// two requests pass the application-level check simultaneously.
+ContractSchema.index(
+  { roomId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { status: ContractStatus.ACTIVE },
+    name: 'unique_active_contract_per_room',
+  },
+);

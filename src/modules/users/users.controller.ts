@@ -18,18 +18,23 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
 import { UserPayload } from '../../shared/types';
 import { ParseObjectIdPipe } from '../../common/pipes/parse-object-id.pipe';
+import { SubscriptionService } from '../subscription/subscription.service';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly subscriptionService: SubscriptionService,
+  ) {}
 
   @Post()
   @Roles(Role.OWNER)
-  create(
+  async create(
     @Body() createUserDto: CreateUserDto,
     @CurrentUser() user: UserPayload,
   ) {
+    await this.subscriptionService.checkStaffLimit(user.ownerId);
     return this.usersService.create(createUserDto, user);
   }
 

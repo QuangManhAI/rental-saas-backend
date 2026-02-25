@@ -5,6 +5,7 @@ import { ContractsController } from './contracts.controller';
 import { Contract, ContractSchema } from './contracts.schema';
 import { RoomsModule } from '../rooms/rooms.module';
 import { TenantsModule } from '../tenants/tenants.module';
+import { PropertiesModule } from '../properties/properties.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { TenantsModule } from '../tenants/tenants.module';
     ]),
     RoomsModule,
     TenantsModule,
+    PropertiesModule,
   ],
   controllers: [ContractsController],
   providers: [ContractsService],

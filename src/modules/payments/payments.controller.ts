@@ -7,6 +7,7 @@ import {
   Delete,
   UseGuards,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -14,9 +15,11 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserPayload } from '../../shared/types';
 import { ParseObjectIdPipe } from '../../common/pipes/parse-object-id.pipe';
+import { AuditInterceptor } from '../../common/interceptors/audit.interceptor';
 
 @Controller('payments')
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(AuditInterceptor)
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) { }
 

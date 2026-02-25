@@ -1,8 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { BillStatus } from './enums/bill-status.enum';
+import {
+  softDeletePlugin,
+  SoftDeleteFields,
+} from '../../common/plugins/soft-delete.plugin';
 
-export type BillDocument = HydratedDocument<Bill>;
+export type BillDocument = HydratedDocument<Bill> & SoftDeleteFields;
 
 @Schema({ timestamps: true })
 export class Bill {
@@ -72,6 +76,8 @@ export class Bill {
 }
 
 export const BillSchema = SchemaFactory.createForClass(Bill);
+
+BillSchema.plugin(softDeletePlugin);
 
 BillSchema.index({ contractId: 1, month: 1, year: 1 }, { unique: true });
 BillSchema.index({ ownerId: 1, status: 1 });

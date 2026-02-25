@@ -10,6 +10,8 @@ import { Property, PropertyDocument } from '../properties/properties.schema';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { UserPayload } from '../../shared/types';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { PaginatedResponse, buildPaginatedResponse } from '../../common/dto/paginated-response.dto';
 
 @Injectable()
 export class RoomsService {
@@ -44,8 +46,11 @@ export class RoomsService {
 
   async findAll(
     user: UserPayload,
-    propertyId?: string,
-  ): Promise<RoomDocument[]> {
+    query: PaginationDto & { propertyId?: string } = {},
+  ): Promise<PaginatedResponse<RoomDocument>> {
+    const { page = 1, limit = 20, search, propertyId } = query;
+    const skip = (page - 1) * limit;
+
     const filter: Record<string, unknown> = {
       ownerId: new Types.ObjectId(user.ownerId),
     };
@@ -54,11 +59,23 @@ export class RoomsService {
       filter.propertyId = new Types.ObjectId(propertyId);
     }
 
-    return this.roomModel
-      .find(filter)
-      .populate('propertyId', 'name address')
-      .lean()
-      .exec();
+    if (search) {
+      filter.name = { $regex: search, $options: 'i' };
+    }
+
+    const [data, total] = await Promise.all([
+      this.roomModel
+        .find(filter)
+        .populate('propertyId', 'name address')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean()
+        .exec(),
+      this.roomModel.countDocuments(filter),
+    ]);
+
+    return buildPaginatedResponse(data as RoomDocument[], total, page, limit);
   }
 
   async findOne(id: string, user: UserPayload): Promise<RoomDocument> {

@@ -2,6 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+import * as path from 'path';
+
+const execAsync = promisify(exec);
 
 import { Bill, BillDocument } from '../bills/bills.schema';
 import { Contract, ContractDocument } from '../contracts/contracts.schema';
@@ -12,6 +17,7 @@ import { TelegramService } from '../telegram/telegram.service';
 import { MomoService } from '../momo/momo.service';
 import { BillStatus } from '../bills/enums/bill-status.enum';
 import { ContractStatus } from '../contracts/enums/contract-status.enum';
+import { SubscriptionService } from '../subscription/subscription.service';
 
 @Injectable()
 export class CronService {
@@ -27,7 +33,21 @@ export class CronService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     private readonly telegramService: TelegramService,
     private readonly momoService: MomoService,
+    private readonly subscriptionService: SubscriptionService,
   ) { }
+
+  /* ──────────────────────────────────────────────────────────
+   * 0. Subscription expiry check
+   *    Runs daily at 1:00 AM
+   * ────────────────────────────────────────────────────────── */
+  @Cron('0 1 * * *', { name: 'subscription-expiry-check' })
+  async checkSubscriptionExpiry() {
+    this.logger.log('⏰ Running subscription expiry check…');
+    const expired = await this.subscriptionService.expireOverdueSubscriptions();
+    if (expired > 0) {
+      this.logger.warn(`⚠️ ${expired} subscription(s) expired and downgraded to free`);
+    }
+  }
 
   /* ──────────────────────────────────────────────────────────
    * 1. Overdue Bills Check
@@ -351,5 +371,65 @@ export class CronService {
       month: currentMonth,
       year: currentYear,
     };
+  }
+
+  /* ──────────────────────────────────────────────────────────
+   * 4. MongoDB Backup to R2
+   *    Runs every day at 2:00 AM
+   *    Executes backup-mongodb.sh and notifies admin via Telegram
+   * ────────────────────────────────────────────────────────── */
+
+  @Cron('0 2 * * *', { name: 'mongodb-backup' })
+  async runMongoBackup() {
+    this.logger.log('⏰ Running MongoDB backup...');
+
+    const adminChatId = process.env.ADMIN_TELEGRAM_CHAT_ID || '';
+    const scriptPath = path.resolve(process.cwd(), 'scripts/backup-mongodb.sh');
+    const startTime = Date.now();
+
+    try {
+      const { stdout, stderr } = await execAsync(`bash "${scriptPath}"`, {
+        timeout: 5 * 60 * 1000, // 5-minute timeout
+        env: { ...process.env },
+      });
+
+      if (stderr) this.logger.warn(`Backup stderr: ${stderr}`);
+
+      const duration = Math.round((Date.now() - startTime) / 1000);
+
+      // Parse output for details
+      const nameMatch = stdout.match(/BACKUP_NAME=(.+)/);
+      const sizeMatch = stdout.match(/ARCHIVE_SIZE=(.+)/);
+      const backupName = nameMatch?.[1]?.trim() ?? 'unknown';
+      const archiveSize = sizeMatch?.[1]?.trim() ?? 'unknown';
+
+      this.logger.log(`✅ Backup complete: ${backupName} (${archiveSize}) in ${duration}s`);
+
+      if (adminChatId) {
+        const msg =
+          `✅ <b>BACKUP THÀNH CÔNG</b>\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n` +
+          `📦 File: ${backupName}.tar.gz\n` +
+          `📊 Size: ${archiveSize}\n` +
+          `⏱ Duration: ${duration}s\n` +
+          `🕐 ${new Date().toLocaleString('vi-VN')}`;
+        await this.telegramService.sendMessage(adminChatId, msg);
+      }
+    } catch (err: any) {
+      const duration = Math.round((Date.now() - startTime) / 1000);
+      this.logger.error(`Backup failed after ${duration}s: ${err.message}`);
+
+      if (adminChatId) {
+        const msg =
+          `❌ <b>BACKUP THẤT BẠI</b>\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n` +
+          `💥 Lỗi: ${err.message?.slice(0, 300)}\n` +
+          `⏱ Sau: ${duration}s\n` +
+          `🕐 ${new Date().toLocaleString('vi-VN')}`;
+        try {
+          await this.telegramService.sendMessage(adminChatId, msg);
+        } catch { /* ignore notification failure */ }
+      }
+    }
   }
 }
