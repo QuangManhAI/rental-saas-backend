@@ -61,8 +61,10 @@ async function bootstrap() {
   // Response interceptor
   app.useGlobalInterceptors(new TransformInterceptor());
 
-  const port = process.env.PORT || 3000;
+  const port = parseInt(process.env.PORT || '3000', 10);
   await app.listen(port, '0.0.0.0');
+
+  console.log('Listening on port:', port);
 
   winstonLogger.log(`Application running on port ${port}`, 'Bootstrap');
   winstonLogger.log(`CORS allowed origins: ${origins.join(', ')}`, 'Bootstrap');
