@@ -66,5 +66,7 @@ async function bootstrap() {
 
   winstonLogger.log(`Application running on port ${port}`, 'Bootstrap');
   winstonLogger.log(`CORS allowed origins: ${origins.join(', ')}`, 'Bootstrap');
+  console.log('ENV RAW:', process.env.ALLOWED_ORIGINS);
+  console.log('CONFIG VALUE:', configService.get('cors.allowedOrigins'));
 }
 bootstrap();
