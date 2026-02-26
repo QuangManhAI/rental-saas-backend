@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import * as Handlebars from 'handlebars';
 import * as dns from 'dns';
 
 export interface BillNotificationContext {
@@ -75,16 +75,13 @@ export class MailService {
     const pass = configService.get<string>('mail.pass');
     this.from = configService.get<string>('mail.from') ?? 'Rental SaaS <noreply@rental.local>';
 
-    dns.setDefaultResultOrder('ipv4first');
-    
     if (host && user && pass) {
       this.transporter = nodemailer.createTransport({
         host,
         port,
         secure: port === 465,
         auth: { user, pass },
-        family: 4,
-      } as any);
+      });
       this.configured = true;
     } else {
       this.configured = false;
