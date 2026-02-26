@@ -1,8 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
-import * as Handlebars from 'handlebars';
-import * as dns from 'dns';
 
 export interface BillNotificationContext {
   tenantName: string;
@@ -63,40 +59,42 @@ export interface ContractEmailContext {
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private transporter: nodemailer.Transporter | null = null;
+  private readonly apiKey: string;
   private readonly from: string;
   private readonly configured: boolean;
 
-  
-  constructor(private readonly configService: ConfigService) {
-    const host = configService.get<string>('mail.host');
-    const port = configService.get<number>('mail.port') ?? 587;
-    const user = configService.get<string>('mail.user');
-    const pass = configService.get<string>('mail.pass');
-    this.from = configService.get<string>('mail.from') ?? 'Rental SaaS <noreply@rental.local>';
+  constructor() {
+    this.apiKey = process.env.API_RESEND ?? '';
+    this.from = process.env.MAIL_FROM ?? 'Rental SaaS <noreply@rental.local>';
+    this.configured = !!this.apiKey;
 
-    if (host && user && pass) {
-      this.transporter = nodemailer.createTransport({
-        host,
-        port,
-        secure: port === 465,
-        auth: { user, pass },
-      });
-      this.configured = true;
-    } else {
-      this.configured = false;
-      this.logger.warn('Mail service not configured — emails will be skipped. Set SMTP_HOST, SMTP_USER, SMTP_PASS.');
+    if (!this.configured) {
+      this.logger.warn('Mail service not configured — emails will be skipped. Set API_RESEND.');
     }
   }
 
   private async send(to: string, subject: string, html: string): Promise<void> {
-    if (!this.configured || !this.transporter) {
+    if (!this.configured) {
       this.logger.debug(`[Mail skipped] To: ${to} | Subject: ${subject}`);
       return;
     }
 
     try {
-      await this.transporter.sendMail({ from: this.from, to, subject, html });
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify({ from: this.from, to: [to], subject, html }),
+      });
+
+      if (!res.ok) {
+        const body = await res.text();
+        this.logger.error(`[Mail error] To: ${to} | HTTP ${res.status}: ${body}`);
+        return;
+      }
+
       this.logger.debug(`[Mail sent] To: ${to} | Subject: ${subject}`);
     } catch (error) {
       this.logger.error(`[Mail error] To: ${to} | ${(error as Error).message}`);
@@ -140,7 +138,7 @@ export class MailService {
   }
 }
 
-// ─── HTML Templates (inline Handlebars-compiled) ─────────────────────────────
+// ─── HTML Templates ──────────────────────────────────────────────────────────
 
 function fmt(n: number): string {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);

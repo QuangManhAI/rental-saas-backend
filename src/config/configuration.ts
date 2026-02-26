@@ -45,12 +45,9 @@ export default () => ({
     host: process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT || '6379', 10),
   },
-  // SMTP Email
+  // Resend Email
   mail: {
-    host: process.env.SMTP_HOST || '',
-    port: parseInt(process.env.SMTP_PORT || '587', 10),
-    user: process.env.SMTP_USER || '',
-    pass: process.env.SMTP_PASS || '',
+    resendApiKey: process.env.API_RESEND || '',
     from: process.env.MAIL_FROM || 'Rental SaaS <noreply@rental.local>',
   },
 });
