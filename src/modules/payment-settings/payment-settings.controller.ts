@@ -23,7 +23,17 @@ export class PaymentSettingsController {
     @Get()
     async get(@CurrentUser() user: UserPayload) {
         const settings = await this.paymentSettingsService.getByOwnerId(user.ownerId);
-        return settings || { configured: false };
+        if (!settings) return { configured: false };
+
+        // Sanitize: never expose encrypted credential objects to the frontend.
+        // Return a boolean flag so FE knows credentials are set, plus the plain-text fields.
+        const plain = settings.toObject ? settings.toObject() : { ...settings };
+        return {
+            ...plain,
+            momoAccessKey: plain.momoAccessKey ? '••••••••' : undefined,
+            momoSecretKey: plain.momoSecretKey ? '••••••••' : undefined,
+            vnpayHashSecret: plain.vnpayHashSecret ? '••••••••' : undefined,
+        };
     }
 
     /**
@@ -35,6 +45,13 @@ export class PaymentSettingsController {
         @Body() dto: UpsertPaymentSettingsDto,
         @CurrentUser() user: UserPayload,
     ) {
-        return this.paymentSettingsService.upsert(user.ownerId, dto);
+        const result = await this.paymentSettingsService.upsert(user.ownerId, dto);
+        const plain = result.toObject ? result.toObject() : { ...result };
+        return {
+            ...plain,
+            momoAccessKey: plain.momoAccessKey ? '••••••••' : undefined,
+            momoSecretKey: plain.momoSecretKey ? '••••••••' : undefined,
+            vnpayHashSecret: plain.vnpayHashSecret ? '••••••••' : undefined,
+        };
     }
 }
