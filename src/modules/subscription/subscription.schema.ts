@@ -26,19 +26,19 @@ export const PLAN_LIMITS: Record<SubscriptionPlan, {
     propertyLimit: 1,
     roomLimit: 10,
     staffLimit: 1,
-    features: ['bills', 'payments', 'tenant-portal', 'pdf-export'],
+    features: ['bills', 'payments', 'tenant-portal', 'pdf-export', 'ai-agent'],
   },
   [SubscriptionPlan.BASIC]: {
     propertyLimit: 5,
     roomLimit: 50,
     staffLimit: 2,
-    features: ['bills', 'payments', 'tenant-portal', 'pdf-export', 'telegram', 'email', 'reports', 'vnpay', 'vietqr'],
+    features: ['bills', 'payments', 'tenant-portal', 'pdf-export', 'telegram', 'email', 'reports', 'vnpay', 'vietqr', 'ai-agent'],
   },
   [SubscriptionPlan.PRO]: {
     propertyLimit: -1, // unlimited
     roomLimit: -1,
     staffLimit: -1,
-    features: ['bills', 'payments', 'tenant-portal', 'pdf-export', 'telegram', 'email', 'reports', 'vnpay', 'vietqr', 'api', 'priority-support'],
+    features: ['bills', 'payments', 'tenant-portal', 'pdf-export', 'telegram', 'email', 'reports', 'vnpay', 'vietqr', 'api', 'priority-support', 'ai-agent'],
   },
 };
 

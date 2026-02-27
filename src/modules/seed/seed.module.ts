@@ -14,6 +14,10 @@ import {
   RefreshToken,
   RefreshTokenSchema,
 } from '../auth/auth.schema';
+import {
+  Subscription,
+  SubscriptionSchema,
+} from '../subscription/subscription.schema';
 
 @Module({
   imports: [
@@ -26,6 +30,7 @@ import {
       { name: Bill.name, schema: BillSchema },
       { name: Payment.name, schema: PaymentSchema },
       { name: RefreshToken.name, schema: RefreshTokenSchema },
+      { name: Subscription.name, schema: SubscriptionSchema },
     ]),
   ],
   controllers: [SeedController],

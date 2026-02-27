@@ -50,4 +50,10 @@ export default () => ({
     resendApiKey: process.env.API_RESEND || '',
     from: process.env.MAIL_FROM || 'Rental SaaS <noreply@rental.local>',
   },
+  // OpenAI (AI Agent)
+  openai: {
+    apiKey: process.env.OPENAI_API_KEY || '',
+    model: process.env.OPENAI_MODEL || 'gpt-5-nano',
+    maxTokens: parseInt(process.env.OPENAI_MAX_TOKENS || '2000', 10),
+  },
 });

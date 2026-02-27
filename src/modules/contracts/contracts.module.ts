@@ -18,6 +18,6 @@ import { PropertiesModule } from '../properties/properties.module';
   ],
   controllers: [ContractsController],
   providers: [ContractsService],
-  exports: [MongooseModule],
+  exports: [ContractsService, MongooseModule],
 })
-export class ContractsModule {}
+export class ContractsModule { }

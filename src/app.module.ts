@@ -40,6 +40,7 @@ import { MailModule } from './modules/mail/mail.module';
 import { OnboardingModule } from './modules/onboarding/onboarding.module';
 import { SubscriptionModule } from './modules/subscription/subscription.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { AiAgentModule } from './modules/ai-agent/ai-agent.module';
 
 @Module({
   imports: [
@@ -117,6 +118,7 @@ import { AdminModule } from './modules/admin/admin.module';
     OnboardingModule,
     SubscriptionModule,
     AdminModule,
+    AiAgentModule,
   ],
   providers: [
     // Apply ThrottlerGuard globally to all routes

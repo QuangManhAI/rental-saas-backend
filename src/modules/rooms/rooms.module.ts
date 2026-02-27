@@ -14,6 +14,6 @@ import { SubscriptionModule } from '../subscription/subscription.module';
   ],
   controllers: [RoomsController],
   providers: [RoomsService],
-  exports: [MongooseModule],
+  exports: [RoomsService, MongooseModule],
 })
-export class RoomsModule {}
+export class RoomsModule { }

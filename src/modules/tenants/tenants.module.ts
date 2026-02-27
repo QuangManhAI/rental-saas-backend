@@ -15,6 +15,6 @@ import { Tenant, TenantSchema } from './tenants.schema';
   ],
   controllers: [TenantsController],
   providers: [TenantsService],
-  exports: [MongooseModule],
+  exports: [MongooseModule, TenantsService],
 })
-export class TenantsModule {}
+export class TenantsModule { }

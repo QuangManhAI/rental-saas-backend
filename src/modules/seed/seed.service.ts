@@ -11,6 +11,13 @@ import { Contract, ContractDocument } from '../contracts/contracts.schema';
 import { Bill, BillDocument } from '../bills/bills.schema';
 import { Payment, PaymentDocument } from '../payments/payments.schema';
 import { RefreshToken } from '../auth/auth.schema';
+import {
+  Subscription,
+  SubscriptionDocument,
+  SubscriptionPlan,
+  SubscriptionStatus,
+  PLAN_LIMITS,
+} from '../subscription/subscription.schema';
 
 import { Role } from '../../common/enums/role.enum';
 import { RoomStatus } from '../rooms/enums/room-status.enum';
@@ -36,7 +43,9 @@ export class SeedService {
     private readonly paymentModel: Model<PaymentDocument>,
     @InjectModel(RefreshToken.name)
     private readonly refreshTokenModel: Model<any>,
-  ) {}
+    @InjectModel(Subscription.name)
+    private readonly subscriptionModel: Model<SubscriptionDocument>,
+  ) { }
 
   /* ───── helpers ───── */
 
@@ -67,6 +76,7 @@ export class SeedService {
       this.billModel.deleteMany({}),
       this.paymentModel.deleteMany({}),
       this.refreshTokenModel.deleteMany({}),
+      this.subscriptionModel.deleteMany({}),
     ]);
     this.logger.log('All collections cleared');
     return { message: 'All data cleared' };
@@ -79,7 +89,7 @@ export class SeedService {
     this.logger.log('🌱 Seeding demo data (Feb 2–20 2026)…');
 
     // ── Date ranges ──────────────────────────────────────────
-    const FEB_2  = new Date('2026-02-02T07:00:00Z');
+    const FEB_2 = new Date('2026-02-02T07:00:00Z');
     const FEB_10 = new Date('2026-02-10T23:59:59Z');
     const FEB_11 = new Date('2026-02-11T07:00:00Z');
     const FEB_20 = new Date('2026-02-20T23:59:59Z');
@@ -100,6 +110,21 @@ export class SeedService {
       isOnboardingComplete: true,
     });
     this.logger.log('  ✔ Owner: py.quang.manh.ai@gmail.com / 200406');
+
+    // ── 1b. Subscription (Pro plan) ─────────────────────────
+    const proLimits = PLAN_LIMITS[SubscriptionPlan.PRO];
+    await this.subscriptionModel.create({
+      ownerId,
+      plan: SubscriptionPlan.PRO,
+      status: SubscriptionStatus.ACTIVE,
+      currentPeriodStart: new Date('2025-12-01'),
+      currentPeriodEnd: new Date('2026-12-01'),
+      propertyLimit: proLimits.propertyLimit,
+      roomLimit: proLimits.roomLimit,
+      staffLimit: proLimits.staffLimit,
+      features: proLimits.features,
+    });
+    this.logger.log('  ✔ Subscription: PRO plan (ai-agent enabled)');
 
     // ── 2. Property ─────────────────────────────────────────
     const property = await this.propertyModel.create({
@@ -142,16 +167,16 @@ export class SeedService {
 
     // ── 4. Tenants (10) ─────────────────────────────────────
     const tenantData = [
-      { fullName: 'Trần Thị Bích',   phone: '0912345001', idCard: '079200001001', email: 'bich.tran@email.com' },
-      { fullName: 'Lê Văn Cường',    phone: '0912345002', idCard: '079200001002', email: 'cuong.le@email.com' },
-      { fullName: 'Phạm Thị Dung',   phone: '0912345003', idCard: '079200001003', email: 'dung.pham@email.com' },
-      { fullName: 'Hoàng Văn Em',    phone: '0912345004', idCard: '079200001004', email: 'em.hoang@email.com' },
-      { fullName: 'Ngô Thị Phương',  phone: '0912345005', idCard: '079200001005', email: 'phuong.ngo@email.com' },
-      { fullName: 'Vũ Văn Giang',    phone: '0912345006', idCard: '079200001006', email: 'giang.vu@email.com' },
-      { fullName: 'Đặng Thị Hà',     phone: '0912345007', idCard: '079200001007', email: 'ha.dang@email.com' },
-      { fullName: 'Bùi Văn Hùng',    phone: '0912345008', idCard: '079200001008', email: 'hung.bui@email.com' },
-      { fullName: 'Đỗ Thị Kim',      phone: '0912345009', idCard: '079200001009', email: 'kim.do@email.com' },
-      { fullName: 'Lý Văn Long',      phone: '0912345010', idCard: '079200001010', email: 'long.ly@email.com' },
+      { fullName: 'Trần Thị Bích', phone: '0912345001', idCard: '079200001001', email: 'bich.tran@email.com' },
+      { fullName: 'Lê Văn Cường', phone: '0912345002', idCard: '079200001002', email: 'cuong.le@email.com' },
+      { fullName: 'Phạm Thị Dung', phone: '0912345003', idCard: '079200001003', email: 'dung.pham@email.com' },
+      { fullName: 'Hoàng Văn Em', phone: '0912345004', idCard: '079200001004', email: 'em.hoang@email.com' },
+      { fullName: 'Ngô Thị Phương', phone: '0912345005', idCard: '079200001005', email: 'phuong.ngo@email.com' },
+      { fullName: 'Vũ Văn Giang', phone: '0912345006', idCard: '079200001006', email: 'giang.vu@email.com' },
+      { fullName: 'Đặng Thị Hà', phone: '0912345007', idCard: '079200001007', email: 'ha.dang@email.com' },
+      { fullName: 'Bùi Văn Hùng', phone: '0912345008', idCard: '079200001008', email: 'hung.bui@email.com' },
+      { fullName: 'Đỗ Thị Kim', phone: '0912345009', idCard: '079200001009', email: 'kim.do@email.com' },
+      { fullName: 'Lý Văn Long', phone: '0912345010', idCard: '079200001010', email: 'long.ly@email.com' },
     ];
     const hometowns = ['Hà Nội', 'Đà Nẵng', 'Huế', 'Nghệ An', 'Thanh Hóa', 'Bình Dương', 'Long An', 'Cần Thơ'];
 
@@ -177,7 +202,7 @@ export class SeedService {
         roomId: rooms[i]._id,
         tenantId: tenants[i]._id,
         startDate: new Date('2025-12-01'),
-        endDate:   new Date('2026-12-01'),
+        endDate: new Date('2026-12-01'),
         deposit: rooms[i].price,
         rentPrice: rooms[i].price,
         status: ContractStatus.ACTIVE,
@@ -193,7 +218,7 @@ export class SeedService {
     //   • Jan 2026  — mostly paid (payments Feb 2–10)
     //   • Feb 2026  — freshly issued (payments Feb 11–20, ~50% paid)
     const electricRate = 3_500;
-    const waterRate    = 20_000;
+    const waterRate = 20_000;
 
     const bills: BillDocument[] = [];
 
@@ -211,42 +236,42 @@ export class SeedService {
         month: 12, year: 2025,
         billCreated: new Date('2025-12-05T08:00:00Z'),
         payFrom: new Date('2025-12-06T07:00:00Z'),
-        payTo:   new Date('2026-01-20T23:59:59Z'),
+        payTo: new Date('2026-01-20T23:59:59Z'),
         paidChance: 0.9,
       },
       {
         month: 1, year: 2026,
         billCreated: new Date('2026-01-05T08:00:00Z'),
         payFrom: FEB_2,
-        payTo:   FEB_10,
+        payTo: FEB_10,
         paidChance: 0.7,
       },
       {
         month: 2, year: 2026,
         billCreated: new Date('2026-02-05T08:00:00Z'),
         payFrom: FEB_11,
-        payTo:   FEB_20,
+        payTo: FEB_20,
         paidChance: 0.5,
       },
     ];
 
     for (const contract of contracts) {
       let prevElectric = this.rand(100, 500);
-      let prevWater    = this.rand(10, 50);
+      let prevWater = this.rand(10, 50);
 
       for (const period of periods) {
         const electricUsage = this.rand(50, 200);
-        const waterUsage    = this.rand(3, 15);
+        const waterUsage = this.rand(3, 15);
 
         const electricOld = prevElectric;
         const electricNew = prevElectric + electricUsage;
-        const waterOld    = prevWater;
-        const waterNew    = prevWater + waterUsage;
+        const waterOld = prevWater;
+        const waterNew = prevWater + waterUsage;
 
         const electricCost = electricUsage * electricRate;
-        const waterCost    = waterUsage    * waterRate;
-        const otherFee     = this.pick([0, 0, 50_000, 100_000]);
-        const totalAmount  = contract.rentPrice + electricCost + waterCost + otherFee;
+        const waterCost = waterUsage * waterRate;
+        const otherFee = this.pick([0, 0, 50_000, 100_000]);
+        const totalAmount = contract.rentPrice + electricCost + waterCost + otherFee;
 
         const roll = Math.random();
         let status: BillStatus;
@@ -292,7 +317,7 @@ export class SeedService {
 
         bills.push(bill);
         prevElectric = electricNew;
-        prevWater    = waterNew;
+        prevWater = waterNew;
       }
     }
     this.logger.log(`  ✔ ${bills.length} bills created (Dec 2025, Jan 2026, Feb 2026)`);
