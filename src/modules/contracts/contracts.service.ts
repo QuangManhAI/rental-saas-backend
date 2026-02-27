@@ -7,6 +7,8 @@ import {
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection, Types } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
+import { randomBytes } from 'crypto';
+import * as bcrypt from 'bcrypt';
 import { Contract, ContractDocument } from './contracts.schema';
 import { Room, RoomDocument } from '../rooms/rooms.schema';
 import { Tenant, TenantDocument } from '../tenants/tenants.schema';
@@ -253,13 +255,12 @@ export class ContractsService {
   ): Promise<void> {
     if (!tenant.email) return;
 
-    // Populate property info from room
     const property = await this.propertyModel.findById(room.propertyId).lean();
 
     const fmtDate = (d: Date) =>
       d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-    await this.mailService.sendContractCreated(tenant.email, {
+    const contractCtx = {
       tenantName: tenant.fullName,
       propertyName: property?.name ?? 'N/A',
       propertyAddress: property?.address ?? 'N/A',
@@ -271,7 +272,34 @@ export class ContractsService {
       deposit: contract.deposit ?? 0,
       telegramLink,
       portalUrl: `${this.frontendUrl}/tenant`,
-    });
+    };
+
+    // If tenant is not activated yet → generate initial password & activate
+    if (!tenant.isActivated) {
+      const initialPassword = randomBytes(4).toString('hex'); // 8-char random password
+      const hashedPassword = await bcrypt.hash(initialPassword, 12);
+
+      await this.tenantModel.updateOne(
+        { _id: tenant._id },
+        {
+          password: hashedPassword,
+          isActivated: true,
+          activationToken: null,
+          activationTokenExpiresAt: null,
+        },
+      );
+
+      this.logger.log(`Tenant ${tenant.email} auto-activated with initial password on contract creation`);
+
+      await this.mailService.sendContractWithPassword(tenant.email, {
+        ...contractCtx,
+        email: tenant.email,
+        initialPassword,
+      });
+    } else {
+      // Already activated → send normal contract email
+      await this.mailService.sendContractCreated(tenant.email, contractCtx);
+    }
 
     this.logger.log(`Contract email sent to tenant ${tenant.email}`);
   }

@@ -56,6 +56,11 @@ export interface ContractEmailContext {
   portalUrl?: string;
 }
 
+export interface ContractWithPasswordContext extends ContractEmailContext {
+  email: string;
+  initialPassword: string;
+}
+
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
@@ -135,6 +140,12 @@ export class MailService {
     if (!to) return;
     const html = contractCreatedTemplate(ctx);
     await this.send(to, `Hợp đồng thuê phòng ${ctx.roomName} — ${ctx.propertyName}`, html);
+  }
+
+  async sendContractWithPassword(to: string, ctx: ContractWithPasswordContext): Promise<void> {
+    if (!to) return;
+    const html = contractWithPasswordTemplate(ctx);
+    await this.send(to, `Hợp đồng thuê phòng ${ctx.roomName} — Tài khoản đăng nhập`, html);
   }
 }
 
@@ -363,6 +374,90 @@ function tenantActivationTemplate(ctx: TenantActivationContext): string {
     </ul>
 
     <p style="color:#9CA3AF;font-size:12px;margin-top:24px;">Nếu bạn không yêu cầu tạo tài khoản, hãy bỏ qua email này.</p>
+  </div>
+  <p style="text-align:center;color:#9CA3AF;font-size:12px;margin-top:16px;">Rental SaaS — Hệ thống quản lý cho thuê</p>
+</body>
+</html>`;
+}
+
+function contractWithPasswordTemplate(ctx: ContractWithPasswordContext): string {
+  return `
+<!DOCTYPE html>
+<html lang="vi">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Hợp đồng thuê phòng & Tài khoản đăng nhập</title></head>
+<body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#f8f9fa;">
+  <div style="background:#4F46E5;padding:32px;text-align:center;">
+    <h1 style="color:#fff;margin:0;font-size:24px;">Hợp đồng thuê phòng</h1>
+    <p style="color:#C7D2FE;margin:8px 0 0;">Thông tin hợp đồng & tài khoản đăng nhập</p>
+  </div>
+  <div style="background:#fff;padding:32px;border-radius:0 0 8px 8px;">
+    <p style="color:#374151;">Xin chào <strong>${ctx.tenantName}</strong>,</p>
+    <p style="color:#6B7280;">Hợp đồng thuê phòng của bạn đã được tạo thành công.</p>
+
+    <div style="background:#F5F3FF;border-left:4px solid #4F46E5;padding:20px;margin:20px 0;border-radius:0 8px 8px 0;">
+      <h3 style="margin:0 0 12px;color:#4F46E5;font-size:16px;">Thông tin nhà trọ</h3>
+      <p style="margin:4px 0;color:#374151;">🏢 Nhà trọ: <strong>${ctx.propertyName}</strong></p>
+      <p style="margin:4px 0;color:#374151;">📍 Địa chỉ: <strong>${ctx.propertyAddress}</strong></p>
+    </div>
+
+    <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+      <tr style="background:#F3F4F6;">
+        <th style="padding:12px;text-align:left;color:#374151;border-bottom:2px solid #E5E7EB;" colspan="2">Chi tiết hợp đồng</th>
+      </tr>
+      <tr>
+        <td style="padding:10px;border-bottom:1px solid #E5E7EB;color:#6B7280;">🏠 Phòng</td>
+        <td style="padding:10px;border-bottom:1px solid #E5E7EB;text-align:right;font-weight:bold;color:#374151;">${ctx.roomName}${ctx.roomArea ? ` (${ctx.roomArea} m²)` : ''}</td>
+      </tr>
+      <tr>
+        <td style="padding:10px;border-bottom:1px solid #E5E7EB;color:#6B7280;">📅 Ngày bắt đầu</td>
+        <td style="padding:10px;border-bottom:1px solid #E5E7EB;text-align:right;font-weight:bold;color:#374151;">${ctx.startDate}</td>
+      </tr>
+      <tr>
+        <td style="padding:10px;border-bottom:1px solid #E5E7EB;color:#6B7280;">📅 Ngày kết thúc</td>
+        <td style="padding:10px;border-bottom:1px solid #E5E7EB;text-align:right;font-weight:bold;color:#374151;">${ctx.endDate}</td>
+      </tr>
+      <tr style="background:#EEF2FF;">
+        <td style="padding:12px;font-weight:bold;color:#374151;">💰 Giá thuê / tháng</td>
+        <td style="padding:12px;text-align:right;font-weight:bold;color:#4F46E5;font-size:18px;">${fmt(ctx.rentPrice)}</td>
+      </tr>
+      ${ctx.deposit > 0 ? `
+      <tr>
+        <td style="padding:10px;border-bottom:1px solid #E5E7EB;color:#6B7280;">🔒 Tiền đặt cọc</td>
+        <td style="padding:10px;border-bottom:1px solid #E5E7EB;text-align:right;font-weight:bold;color:#374151;">${fmt(ctx.deposit)}</td>
+      </tr>` : ''}
+    </table>
+
+    <div style="background:#DBEAFE;border:2px solid #3B82F6;border-radius:8px;padding:20px;margin:24px 0;">
+      <h3 style="margin:0 0 12px;color:#1E40AF;font-size:16px;">🔑 Tài khoản cổng khách thuê</h3>
+      <p style="margin:6px 0;color:#1E3A5F;">Bạn có thể đăng nhập cổng khách thuê để xem hóa đơn, thanh toán trực tuyến:</p>
+      <table style="width:100%;margin:12px 0;">
+        <tr>
+          <td style="padding:8px;color:#6B7280;width:120px;">📧 Email:</td>
+          <td style="padding:8px;font-weight:bold;color:#1E40AF;">${ctx.email}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;color:#6B7280;">🔒 Mật khẩu:</td>
+          <td style="padding:8px;font-weight:bold;color:#1E40AF;font-family:monospace;font-size:18px;letter-spacing:2px;">${ctx.initialPassword}</td>
+        </tr>
+      </table>
+      <div style="background:#FEF3C7;border:1px solid #FCD34D;border-radius:6px;padding:12px;margin-top:8px;">
+        <p style="margin:0;color:#92400E;font-size:13px;">⚠️ Vui lòng đổi mật khẩu sau khi đăng nhập lần đầu. Nếu quên mật khẩu, sử dụng chức năng <strong>"Quên mật khẩu"</strong> trên trang đăng nhập.</p>
+      </div>
+    </div>
+
+    ${ctx.portalUrl ? `
+    <div style="text-align:center;margin-top:24px;">
+      <a href="${ctx.portalUrl}/login" style="background:#4F46E5;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block;font-size:16px;">Đăng nhập cổng khách thuê</a>
+    </div>` : ''}
+
+    <div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:8px;padding:20px;margin:20px 0;text-align:center;">
+      <p style="margin:0 0 8px;color:#065F46;font-weight:bold;">📱 Nhận thông báo qua Telegram</p>
+      <p style="margin:0 0 16px;color:#6B7280;font-size:13px;">Kết nối Telegram để nhận thông báo hóa đơn, nhắc thanh toán nhanh chóng.</p>
+      <a href="${ctx.telegramLink}" style="background:#0088cc;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block;">Kết nối Telegram</a>
+    </div>
+
+    <p style="color:#9CA3AF;font-size:12px;margin-top:24px;">Nếu bạn có thắc mắc, vui lòng liên hệ chủ nhà trọ để được hỗ trợ.</p>
   </div>
   <p style="text-align:center;color:#9CA3AF;font-size:12px;margin-top:16px;">Rental SaaS — Hệ thống quản lý cho thuê</p>
 </body>
