@@ -7,6 +7,9 @@ import { Bill, BillSchema } from '../bills/bills.schema';
 import { Contract, ContractSchema } from '../contracts/contracts.schema';
 import { Payment, PaymentSchema } from '../payments/payments.schema';
 import { TenantAuthModule } from '../tenant-auth/tenant-auth.module';
+import { MomoModule } from '../momo/momo.module';
+import { VnpayModule } from '../vnpay/vnpay.module';
+import { PaymentSettingsModule } from '../payment-settings/payment-settings.module';
 
 @Module({
   imports: [
@@ -16,7 +19,10 @@ import { TenantAuthModule } from '../tenant-auth/tenant-auth.module';
       { name: Contract.name, schema: ContractSchema },
       { name: Payment.name, schema: PaymentSchema },
     ]),
-    TenantAuthModule, // Provides TenantJwtStrategy
+    TenantAuthModule,
+    MomoModule,
+    VnpayModule,
+    PaymentSettingsModule,
   ],
   controllers: [TenantPortalController],
   providers: [TenantPortalService],
