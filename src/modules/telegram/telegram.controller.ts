@@ -9,6 +9,8 @@ import {
   Headers,
   ForbiddenException,
   Logger,
+  Version,
+  VERSION_NEUTRAL,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
@@ -35,10 +37,10 @@ export class TelegramController {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private readonly momoService: MomoService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   /**
-   * GET /api/telegram/link-url
+   * GET /api/v1/telegram/link-url
    * Get the Telegram link URL for the current owner to link their account.
    */
   @Get('link-url')
@@ -52,7 +54,7 @@ export class TelegramController {
   }
 
   /**
-   * GET /api/telegram/status
+   * GET /api/v1/telegram/status
    * Get the current owner's Telegram connection status.
    */
   @Get('status')
@@ -66,7 +68,7 @@ export class TelegramController {
   }
 
   /**
-   * POST /api/telegram/link
+   * POST /api/v1/telegram/link
    * Manually link Telegram chat ID for the current owner.
    * Body: { chatId: string }
    */
@@ -102,6 +104,7 @@ export class TelegramController {
    * Rate limited to 60 req/min to allow Telegram retries while preventing abuse.
    */
   @Post('webhook')
+  @Version(VERSION_NEUTRAL)
   @HttpCode(HttpStatus.OK)
   @Throttle({ default: { limit: 60, ttl: 60_000 } })
   async handleWebhook(
