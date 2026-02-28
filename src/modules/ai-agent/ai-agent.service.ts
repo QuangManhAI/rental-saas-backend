@@ -559,13 +559,12 @@ export class AiAgentService {
                 // Generate deterministic response from last tool result
                 if (lastToolResult && lastToolName) {
                     const formatted = this.toolRegistry.formatResponse(lastToolName, lastToolResult);
-                    // If we already streamed text, use that; otherwise use deterministic
                     if (!streamedText.trim()) {
                         reply = formatted;
-                        // Emit the deterministic reply as tokens for typewriter effect
-                        const words = formatted.split(/(\s+)/);
-                        for (const word of words) {
-                            if (word) emit({ event: 'token', data: { text: word } });
+                        // Emit deterministic reply in small chunks for smooth typewriter
+                        const CHUNK_SIZE = 3;
+                        for (let i = 0; i < formatted.length; i += CHUNK_SIZE) {
+                            emit({ event: 'token', data: { text: formatted.slice(i, i + CHUNK_SIZE) } });
                         }
                     } else {
                         reply = streamedText;
