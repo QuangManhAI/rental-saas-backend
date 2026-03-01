@@ -248,7 +248,7 @@ export class SubscriptionService {
     const { page = 1, limit = 20 } = query;
     const skip = (page - 1) * limit;
 
-    const [subs, total] = await Promise.all([
+    const [allSubs, total] = await Promise.all([
       this.subModel
         .find()
         .sort({ createdAt: -1 })
@@ -258,6 +258,9 @@ export class SubscriptionService {
         .lean(),
       this.subModel.countDocuments(),
     ]);
+
+    // Filter out orphan subscriptions whose owner user has been deleted
+    const subs = allSubs.filter((s) => s.ownerId !== null);
 
     return buildPaginatedResponse(subs, total, page, limit);
   }
