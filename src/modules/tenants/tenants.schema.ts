@@ -23,6 +23,10 @@ export class Tenant {
   @Prop({ type: Date, default: null })
   activationTokenExpiresAt?: Date | null;
 
+  /** True after first activation; cleared once the tenant changes their own password */
+  @Prop({ default: false })
+  mustChangePassword: boolean;
+
   @Prop({ required: true, trim: true })
   phone: string;
 

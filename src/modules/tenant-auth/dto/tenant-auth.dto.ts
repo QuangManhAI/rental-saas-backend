@@ -22,6 +22,16 @@ export class TenantLoginDto {
   password: string;
 }
 
+export class TenantChangeInitialPasswordDto {
+  @IsNotEmpty()
+  @MinLength(6, { message: 'Mật khẩu ít nhất 6 ký tự' })
+  newPassword: string;
+
+  @IsNotEmpty()
+  @MinLength(6)
+  confirmPassword: string;
+}
+
 export class TenantRequestForgotPasswordDto {
   @IsNotEmpty()
   @IsEmail()

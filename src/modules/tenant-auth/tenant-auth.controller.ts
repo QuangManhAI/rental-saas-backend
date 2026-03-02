@@ -8,6 +8,7 @@ import {
   Request,
   HttpCode,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { IsString, IsNotEmpty, IsMongoId } from 'class-validator';
@@ -18,6 +19,7 @@ import { ParseObjectIdPipe } from '../../common/pipes/parse-object-id.pipe';
 import {
   ActivateAccountDto,
   TenantLoginDto,
+  TenantChangeInitialPasswordDto,
   TenantRequestForgotPasswordDto,
   TenantVerifyForgotPasswordDto,
 } from './dto/tenant-auth.dto';
@@ -70,6 +72,21 @@ export class TenantAuthController {
   @HttpCode(HttpStatus.OK)
   async requestForgotPassword(@Body() dto: TenantRequestForgotPasswordDto) {
     return this.tenantAuthService.requestForgotPassword(dto);
+  }
+
+  /**
+   * POST /tenant-auth/change-initial-password
+   * Authenticated — tenant changes their forced-on-first-login password (no OTP needed).
+   */
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @UseGuards(TenantJwtGuard)
+  @Post('change-initial-password')
+  @HttpCode(HttpStatus.OK)
+  async changeInitialPassword(@Body() dto: TenantChangeInitialPasswordDto, @Request() req: any) {
+    if (dto.newPassword !== dto.confirmPassword) {
+      throw new BadRequestException('Mật khẩu xác nhận không khớp');
+    }
+    return this.tenantAuthService.changeInitialPassword(req.user.tenantId, dto.newPassword);
   }
 
   /**

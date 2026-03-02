@@ -59,7 +59,7 @@ export class TenantAuthService {
 
   // ─── Activation ──────────────────────────────────────────────
 
-  async activateAccount(dto: ActivateAccountDto): Promise<{ accessToken: string; tenant: Partial<Tenant> }> {
+  async activateAccount(dto: ActivateAccountDto): Promise<{ accessToken: string; mustChangePassword: boolean; tenant: Partial<Tenant> }> {
     const tenant = await this.tenantModel.findOne({
       activationToken: dto.token,
       isActivated: false,
@@ -77,6 +77,7 @@ export class TenantAuthService {
     tenant.isActivated = true;
     tenant.activationToken = null;
     tenant.activationTokenExpiresAt = null;
+    tenant.mustChangePassword = true;
     await tenant.save();
 
     this.logger.log(`Tenant activated: ${tenant.email} (${tenant._id})`);
@@ -89,6 +90,7 @@ export class TenantAuthService {
 
     return {
       accessToken: this.signTenantJwt(payload),
+      mustChangePassword: true,
       tenant: {
         fullName: tenant.fullName,
         email: tenant.email,
@@ -99,7 +101,7 @@ export class TenantAuthService {
 
   // ─── Login ───────────────────────────────────────────────────
 
-  async login(dto: TenantLoginDto): Promise<{ accessToken: string; tenant: Partial<Tenant> }> {
+  async login(dto: TenantLoginDto): Promise<{ accessToken: string; mustChangePassword: boolean; tenant: Partial<Tenant> }> {
     const tenant = await this.tenantModel.findOne({ email: dto.email }).exec();
 
     if (!tenant || !tenant.password) {
@@ -125,12 +127,29 @@ export class TenantAuthService {
 
     return {
       accessToken: this.signTenantJwt(payload),
+      mustChangePassword: tenant.mustChangePassword ?? false,
       tenant: {
         fullName: tenant.fullName,
         email: tenant.email,
         phone: tenant.phone,
       },
     };
+  }
+
+  // ─── Change Initial Password ─────────────────────────────────
+
+  async changeInitialPassword(tenantId: string, newPassword: string): Promise<{ message: string }> {
+    const tenant = await this.tenantModel.findById(tenantId);
+    if (!tenant || !tenant.isActivated) {
+      throw new NotFoundException('Tài khoản không tồn tại');
+    }
+
+    tenant.password = await bcrypt.hash(newPassword, 12);
+    tenant.mustChangePassword = false;
+    await tenant.save();
+
+    this.logger.log(`Tenant changed initial password: ${tenant.email}`);
+    return { message: 'Mật khẩu đã được cập nhật thành công' };
   }
 
   // ─── Forgot Password ────────────────────────────────────────
