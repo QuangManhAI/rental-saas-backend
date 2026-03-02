@@ -8,7 +8,6 @@ import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model, Connection, Types } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { randomBytes } from 'crypto';
-import * as bcrypt from 'bcrypt';
 import { Contract, ContractDocument } from './contracts.schema';
 import { Room, RoomDocument } from '../rooms/rooms.schema';
 import { Tenant, TenantDocument } from '../tenants/tenants.schema';
@@ -274,27 +273,23 @@ export class ContractsService {
       portalUrl: `${this.frontendUrl}/tenant`,
     };
 
-    // If tenant is not activated yet → generate initial password & activate
+    // If tenant is not activated yet → generate activation token & send contract email with activation link
     if (!tenant.isActivated) {
-      const initialPassword = randomBytes(4).toString('hex'); // 8-char random password
-      const hashedPassword = await bcrypt.hash(initialPassword, 12);
+      const activationToken = randomBytes(32).toString('hex');
+      const activationTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
       await this.tenantModel.updateOne(
         { _id: tenant._id },
-        {
-          password: hashedPassword,
-          isActivated: true,
-          activationToken: null,
-          activationTokenExpiresAt: null,
-        },
+        { activationToken, activationTokenExpiresAt },
       );
 
-      this.logger.log(`Tenant ${tenant.email} auto-activated with initial password on contract creation`);
+      const activationLink = `${this.frontendUrl}/tenant/activate?token=${activationToken}`;
+      this.logger.log(`Sending contract email with activation link to ${tenant.email}`);
 
-      await this.mailService.sendContractWithPassword(tenant.email, {
+      await this.mailService.sendContractWithActivation(tenant.email, {
         ...contractCtx,
-        email: tenant.email,
-        initialPassword,
+        activationLink,
+        expiresIn: '7 ngày',
       });
     } else {
       // Already activated → send normal contract email

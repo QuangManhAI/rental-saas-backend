@@ -42,19 +42,8 @@ export class TenantsService {
       activationTokenExpiresAt,
     });
 
-    // Fire-and-forget: send activation email if tenant has email
-    if (tenant.email) {
-      const activationLink = `${this.frontendUrl}/tenant/activate?token=${activationToken}`;
-      this.logger.log(`Sending activation email to ${tenant.email}`);
-
-      this.mailService.sendTenantActivation(tenant.email, {
-        tenantName: tenant.fullName,
-        activationLink,
-        expiresIn: '24 giờ',
-      }).catch((err) =>
-        this.logger.error(`Failed to send activation email to ${tenant.email}: ${err.message}`),
-      );
-    }
+    // No activation email here — email will be sent when contract is created.
+    // Owner can manually resend activation via resendActivation() if needed.
 
     return tenant;
   }
