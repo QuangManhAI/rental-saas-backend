@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-09-08T00:00:00.000Z" agent="Claude" version="24.4.0" type="device">
+  <diagram id="CLASSDIAGRAM_4.1_xac_thuc_tai_khoan" name="4.1 Xác thực &amp; Tài khoản (khớp cụm TV1)">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="908" pageHeight="530" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+  <mxCell id="83" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;TàiKhoản&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:5px;&quot;&gt;+email: string&lt;br&gt;+fullName: string&lt;br&gt;+phone: string&lt;br&gt;+role: VaiTrò&lt;br&gt;+isActive: boolean&lt;br&gt;+emailVerified: boolean&lt;br&gt;+telegramChatId: string&lt;/p&gt;" style="shape=umlClass;whiteSpace=wrap;html=1;rounded=0;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+    <mxGeometry x="40" y="40" width="196" height="135" as="geometry"/>
+  </mxCell>
+  <mxCell id="84" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;MãXácThựcOTP&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:5px;&quot;&gt;+email: string&lt;br&gt;+code: string&lt;br&gt;+type: LoạiOTP&lt;br&gt;+expiresAt: Date&lt;br&gt;+attempts: number&lt;/p&gt;" style="shape=umlClass;whiteSpace=wrap;html=1;rounded=0;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+    <mxGeometry x="316" y="40" width="152" height="105" as="geometry"/>
+  </mxCell>
+  <mxCell id="85" value="&lt;p style=&quot;margin:0px;margin-top:2px;text-align:center;&quot;&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;&amp;#171;enumeration&amp;#187;&lt;/span&gt;&lt;br&gt;LoạiOTP&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:5px;&quot;&gt;+REGISTER&lt;br&gt;+CHANGE_PASSWORD&lt;br&gt;+FORGOT_PASSWORD&lt;br&gt;+TENANT_FORGOT_PASSWORD&lt;/p&gt;" style="shape=umlClass;whiteSpace=wrap;html=1;rounded=0;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+    <mxGeometry x="592" y="40" width="196" height="106" as="geometry"/>
+  </mxCell>
+  <mxCell id="86" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;PhiênĐăngNhập&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:5px;&quot;&gt;+token: string&lt;br&gt;+userId: ObjectId&lt;br&gt;+expiresAt: Date&lt;br&gt;+isRevoked: boolean&lt;/p&gt;" style="shape=umlClass;whiteSpace=wrap;html=1;rounded=0;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+    <mxGeometry x="40" y="265" width="167" height="90" as="geometry"/>
+  </mxCell>
+  <mxCell id="87" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;TokenKíchHoạtKhách&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:5px;&quot;&gt;+token: string&lt;br&gt;+tenantId: ObjectId&lt;br&gt;+expiresAt: Date&lt;br&gt;+usedAt: Date&lt;/p&gt;" style="shape=umlClass;whiteSpace=wrap;html=1;rounded=0;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+    <mxGeometry x="316" y="265" width="167" height="90" as="geometry"/>
+  </mxCell>
+  <mxCell id="88" value="&lt;p style=&quot;margin:0px;margin-top:2px;text-align:center;&quot;&gt;&lt;span style=&quot;font-size:9px;&quot;&gt;&amp;#171;enumeration&amp;#187;&lt;/span&gt;&lt;br&gt;VaiTrò&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:5px;&quot;&gt;+OWNER&lt;br&gt;+STAFF&lt;br&gt;+ADMIN&lt;/p&gt;" style="shape=umlClass;whiteSpace=wrap;html=1;rounded=0;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+    <mxGeometry x="592" y="265" width="150" height="91" as="geometry"/>
+  </mxCell>
+  <mxCell id="89" value="có phiên" style="html=1;rounded=0;fontFamily=Helvetica;fontSize=11;fontStyle=0;startArrow=diamond;startFill=0;endArrow=none;" edge="1" parent="1" source="83" target="86">
+    <mxGeometry relative="1" as="geometry"/>
+  </mxCell>
+  <mxCell id="90" value="1" style="edgeLabel;html=1;align=right;verticalAlign=bottom;fontFamily=Helvetica;fontSize=10;fontStyle=0;" vertex="1" connectable="0" parent="89">
+    <mxGeometry x="-0.03" relative="1" as="geometry"><mxPoint x="-12" y="-6" as="offset"/></mxGeometry>
+  </mxCell>
+  <mxCell id="91" value="0..*" style="edgeLabel;html=1;align=left;verticalAlign=bottom;fontFamily=Helvetica;fontSize=10;fontStyle=0;" vertex="1" connectable="0" parent="89">
+    <mxGeometry x="1.03" relative="1" as="geometry"><mxPoint x="12" y="-6" as="offset"/></mxGeometry>
+  </mxCell>
+  <mxCell id="92" value="xác thực qua OTP" style="html=1;rounded=0;fontFamily=Helvetica;fontSize=11;fontStyle=0;endArrow=none;startArrow=none;" edge="1" parent="1" source="83" target="84">
+    <mxGeometry relative="1" as="geometry"/>
+  </mxCell>
+  <mxCell id="93" value="1" style="edgeLabel;html=1;align=right;verticalAlign=bottom;fontFamily=Helvetica;fontSize=10;fontStyle=0;" vertex="1" connectable="0" parent="92">
+    <mxGeometry x="-0.03" relative="1" as="geometry"><mxPoint x="-12" y="-6" as="offset"/></mxGeometry>
+  </mxCell>
+  <mxCell id="94" value="0..*" style="edgeLabel;html=1;align=left;verticalAlign=bottom;fontFamily=Helvetica;fontSize=10;fontStyle=0;" vertex="1" connectable="0" parent="92">
+    <mxGeometry x="1.03" relative="1" as="geometry"><mxPoint x="12" y="-6" as="offset"/></mxGeometry>
+  </mxCell>
+  <mxCell id="95" value="cấp token kích hoạt" style="html=1;rounded=0;fontFamily=Helvetica;fontSize=11;fontStyle=0;endArrow=none;startArrow=none;" edge="1" parent="1" source="83" target="87">
+    <mxGeometry relative="1" as="geometry"/>
+  </mxCell>
+  <mxCell id="96" value="1" style="edgeLabel;html=1;align=right;verticalAlign=bottom;fontFamily=Helvetica;fontSize=10;fontStyle=0;" vertex="1" connectable="0" parent="95">
+    <mxGeometry x="-0.03" relative="1" as="geometry"><mxPoint x="-12" y="-6" as="offset"/></mxGeometry>
+  </mxCell>
+  <mxCell id="97" value="0..*" style="edgeLabel;html=1;align=left;verticalAlign=bottom;fontFamily=Helvetica;fontSize=10;fontStyle=0;" vertex="1" connectable="0" parent="95">
+    <mxGeometry x="1.03" relative="1" as="geometry"><mxPoint x="12" y="-6" as="offset"/></mxGeometry>
+  </mxCell>
+  <mxCell id="98" value="sử dụng" style="html=1;rounded=0;fontFamily=Helvetica;fontSize=11;fontStyle=0;endArrow=open;dashed=1;" edge="1" parent="1" source="83" target="88">
+    <mxGeometry relative="1" as="geometry"/>
+  </mxCell>
+  <mxCell id="99" value="phân loại" style="html=1;rounded=0;fontFamily=Helvetica;fontSize=11;fontStyle=0;endArrow=open;dashed=1;" edge="1" parent="1" source="84" target="85">
+    <mxGeometry relative="1" as="geometry"/>
+  </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

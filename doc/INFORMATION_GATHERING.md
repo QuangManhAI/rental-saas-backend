@@ -127,7 +127,7 @@ User Stories được sử dụng để mô tả yêu cầu hệ thống dưới
 
 Bảng 2. 7 - User Stories của hệ thống quản lý cho thuê SaaS
 
-> User Stories phản ánh trực tiếp 9 tiến trình trong **DFD mức 0**: P1 Xác thực & Tài khoản, P2 Tòa nhà/Phòng, P3 Khách thuê & Hợp đồng, P4 Hóa đơn & Thanh toán, P5 Gói đăng ký & Quản trị, P6 Cổng thông tin Khách thuê, P7 AI Agent, P8 Báo cáo & Xuất file, P9 Thông báo & Định kỳ.
+> User Stories phản ánh trực tiếp 9 tiến trình trong **DFD mức 0**: P1 Xác thực & Quản lý tài khoản, P2 Quản lý tòa nhà/Phòng, P3 Quản lý khách thuê & Hợp đồng, P4 Sinh hóa đơn & Ghi nhận thanh toán, P5 Quản lý gói đăng ký & Quản trị, P6 Cung cấp cổng thông tin Khách thuê, P7 Vận hành AI Agent, P8 Lập báo cáo & Xuất file, P9 Gửi thông báo & Xử lý định kỳ.
 
 ### 2.3.3. JAD (Joint Application Design)
 

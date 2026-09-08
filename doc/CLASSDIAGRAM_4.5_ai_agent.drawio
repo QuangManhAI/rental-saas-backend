@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-09-08T00:00:00.000Z" agent="Claude" version="24.4.0" type="device">
+  <diagram id="CLASSDIAGRAM_4.5_ai_agent" name="4.5 AI Agent (khớp cụm TV6 — hỗ trợ bằng AI)">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="953" pageHeight="500" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+  <mxCell id="173" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;CuộcTròChuyệnAI&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:5px;&quot;&gt;+title: string&lt;br&gt;+status: string&lt;br&gt;+metadata: Object&lt;/p&gt;" style="shape=umlClass;whiteSpace=wrap;html=1;rounded=0;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+    <mxGeometry x="40" y="40" width="152" height="75" as="geometry"/>
+  </mxCell>
+  <mxCell id="174" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;TàiKhoản&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:5px;&quot;&gt;+email: string&lt;br&gt;+role: VaiTrò&lt;/p&gt;" style="shape=umlClass;whiteSpace=wrap;html=1;rounded=0;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+    <mxGeometry x="331" y="40" width="150" height="60" as="geometry"/>
+  </mxCell>
+  <mxCell id="175" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;MứcSửDụngAI&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:5px;&quot;&gt;+period: string&lt;br&gt;+totalRequests: number&lt;br&gt;+totalTokens: number&lt;br&gt;+estimatedCostUsd: number&lt;br&gt;+toolCallCount: number&lt;/p&gt;" style="shape=umlClass;whiteSpace=wrap;html=1;rounded=0;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+    <mxGeometry x="622" y="40" width="211" height="105" as="geometry"/>
+  </mxCell>
+  <mxCell id="176" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;ThựcThiCôngCụAI&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:5px;&quot;&gt;+toolName: string&lt;br&gt;+input: Object&lt;br&gt;+output: Object&lt;br&gt;+status: string&lt;br&gt;+errorMessage: string&lt;br&gt;+executionTimeMs: number&lt;/p&gt;" style="shape=umlClass;whiteSpace=wrap;html=1;rounded=0;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+    <mxGeometry x="40" y="250" width="204" height="120" as="geometry"/>
+  </mxCell>
+  <mxCell id="177" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;TinNhắnAI&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin:0px;margin-left:5px;&quot;&gt;+role: string&lt;br&gt;+content: string&lt;br&gt;+toolCall: Object&lt;br&gt;+promptTokens: number&lt;br&gt;+completionTokens: number&lt;/p&gt;" style="shape=umlClass;whiteSpace=wrap;html=1;rounded=0;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+    <mxGeometry x="331" y="250" width="211" height="105" as="geometry"/>
+  </mxCell>
+  <mxCell id="178" value="tạo hội thoại" style="html=1;rounded=0;fontFamily=Helvetica;fontSize=11;fontStyle=0;endArrow=none;startArrow=none;" edge="1" parent="1" source="174" target="173">
+    <mxGeometry relative="1" as="geometry"/>
+  </mxCell>
+  <mxCell id="179" value="1" style="edgeLabel;html=1;align=right;verticalAlign=bottom;fontFamily=Helvetica;fontSize=10;fontStyle=0;" vertex="1" connectable="0" parent="178">
+    <mxGeometry x="-0.03" relative="1" as="geometry"><mxPoint x="-12" y="-6" as="offset"/></mxGeometry>
+  </mxCell>
+  <mxCell id="180" value="0..*" style="edgeLabel;html=1;align=left;verticalAlign=bottom;fontFamily=Helvetica;fontSize=10;fontStyle=0;" vertex="1" connectable="0" parent="178">
+    <mxGeometry x="1.03" relative="1" as="geometry"><mxPoint x="12" y="-6" as="offset"/></mxGeometry>
+  </mxCell>
+  <mxCell id="181" value="tích lũy mức dùng theo chu kỳ" style="html=1;rounded=0;fontFamily=Helvetica;fontSize=11;fontStyle=0;endArrow=none;startArrow=none;" edge="1" parent="1" source="174" target="175">
+    <mxGeometry relative="1" as="geometry"/>
+  </mxCell>
+  <mxCell id="182" value="1" style="edgeLabel;html=1;align=right;verticalAlign=bottom;fontFamily=Helvetica;fontSize=10;fontStyle=0;" vertex="1" connectable="0" parent="181">
+    <mxGeometry x="-0.03" relative="1" as="geometry"><mxPoint x="-12" y="-6" as="offset"/></mxGeometry>
+  </mxCell>
+  <mxCell id="183" value="0..*" style="edgeLabel;html=1;align=left;verticalAlign=bottom;fontFamily=Helvetica;fontSize=10;fontStyle=0;" vertex="1" connectable="0" parent="181">
+    <mxGeometry x="1.03" relative="1" as="geometry"><mxPoint x="12" y="-6" as="offset"/></mxGeometry>
+  </mxCell>
+  <mxCell id="184" value="chứa tin nhắn" style="html=1;rounded=0;fontFamily=Helvetica;fontSize=11;fontStyle=0;startArrow=diamond;startFill=1;endArrow=none;" edge="1" parent="1" source="173" target="177">
+    <mxGeometry relative="1" as="geometry"/>
+  </mxCell>
+  <mxCell id="185" value="1" style="edgeLabel;html=1;align=right;verticalAlign=bottom;fontFamily=Helvetica;fontSize=10;fontStyle=0;" vertex="1" connectable="0" parent="184">
+    <mxGeometry x="-0.03" relative="1" as="geometry"><mxPoint x="-12" y="-6" as="offset"/></mxGeometry>
+  </mxCell>
+  <mxCell id="186" value="0..*" style="edgeLabel;html=1;align=left;verticalAlign=bottom;fontFamily=Helvetica;fontSize=10;fontStyle=0;" vertex="1" connectable="0" parent="184">
+    <mxGeometry x="1.03" relative="1" as="geometry"><mxPoint x="12" y="-6" as="offset"/></mxGeometry>
+  </mxCell>
+  <mxCell id="187" value="ghi lịch sử thực thi" style="html=1;rounded=0;fontFamily=Helvetica;fontSize=11;fontStyle=0;startArrow=diamond;startFill=1;endArrow=none;" edge="1" parent="1" source="173" target="176">
+    <mxGeometry relative="1" as="geometry"/>
+  </mxCell>
+  <mxCell id="188" value="1" style="edgeLabel;html=1;align=right;verticalAlign=bottom;fontFamily=Helvetica;fontSize=10;fontStyle=0;" vertex="1" connectable="0" parent="187">
+    <mxGeometry x="-0.03" relative="1" as="geometry"><mxPoint x="-12" y="-6" as="offset"/></mxGeometry>
+  </mxCell>
+  <mxCell id="189" value="0..*" style="edgeLabel;html=1;align=left;verticalAlign=bottom;fontFamily=Helvetica;fontSize=10;fontStyle=0;" vertex="1" connectable="0" parent="187">
+    <mxGeometry x="1.03" relative="1" as="geometry"><mxPoint x="12" y="-6" as="offset"/></mxGeometry>
+  </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
