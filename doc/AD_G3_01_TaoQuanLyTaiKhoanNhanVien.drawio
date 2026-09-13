@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-09-08T00:00:00.000Z" agent="TV7" version="24.4.0" type="device">
+  <diagram id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien" name="AD TV3-1 · Tạo và quản lý tài khoản nhân viên">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" math="0" shadow="0" pageWidth="1900" pageHeight="1751">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" parent="1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f6f8fb;strokeColor=#cfd6dd;fontFamily=Helvetica;fontSize=11;" vertex="1">
+          <mxGeometry x="40" y="-4" width="320" height="1751" as="geometry" />
+        </mxCell>
+        <mxCell id="3" parent="1" value="&lt;b&gt;Nhân viên chính&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F0FE;strokeColor=#000000;fontFamily=Helvetica;fontSize=12;fontStyle=1;align=center;verticalAlign=middle;" vertex="1">
+          <mxGeometry x="40" y="-4" width="320" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="4" parent="1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f6f8fb;strokeColor=#cfd6dd;fontFamily=Helvetica;fontSize=11;" vertex="1">
+          <mxGeometry x="400" y="-4" width="1100" height="1751" as="geometry" />
+        </mxCell>
+        <mxCell id="5" parent="1" value="&lt;b&gt;Hệ thống&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDF6E3;strokeColor=#000000;fontFamily=Helvetica;fontSize=12;fontStyle=1;align=center;verticalAlign=middle;" vertex="1">
+          <mxGeometry x="400" y="-4" width="1100" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="6" parent="1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f6f8fb;strokeColor=#cfd6dd;fontFamily=Helvetica;fontSize=11;" vertex="1">
+          <mxGeometry x="1540" y="-4" width="300" height="1751" as="geometry" />
+        </mxCell>
+        <mxCell id="7" parent="1" value="&lt;b&gt;Quản trị viên&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDE8E8;strokeColor=#000000;fontFamily=Helvetica;fontSize=12;fontStyle=1;align=center;verticalAlign=middle;" vertex="1">
+          <mxGeometry x="1540" y="-4" width="300" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n1" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;" vertex="1">
+          <mxGeometry x="186" y="46" width="28" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n2" parent="1" value="Loại thao&lt;br&gt;tác?" style="shape=rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;align=center;verticalAlign=middle;spacing=2;" vertex="1">
+          <mxGeometry x="125" y="125" width="150" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n3" parent="1" value="Chọn “Tạo nhân viên phụ”" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=0;align=center;verticalAlign=middle;spacing=4;arcSize=14;" vertex="1">
+          <mxGeometry x="100" y="303" width="200" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n4" parent="1" value="Nhập email, mật khẩu,&lt;br&gt;họ tên, số điện thoại" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=0;align=center;verticalAlign=middle;spacing=4;arcSize=14;" vertex="1">
+          <mxGeometry x="100" y="438" width="200" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n5" parent="1" value="Hiển thị “Tạo nhân viên&lt;br&gt;thành công”" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=0;align=center;verticalAlign=middle;spacing=4;arcSize=14;" vertex="1">
+          <mxGeometry x="95" y="1468" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n6" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;" vertex="1">
+          <mxGeometry x="183" y="1663" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n6_in" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;" vertex="1">
+          <mxGeometry x="195" y="1675" width="10" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n7" parent="1" value="Hiển thị thông báo lỗi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=0;align=center;verticalAlign=middle;spacing=4;arcSize=14;" vertex="1">
+          <mxGeometry x="100" y="1123" width="200" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n8" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;" vertex="1">
+          <mxGeometry x="183" y="1283" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n8_in" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;" vertex="1">
+          <mxGeometry x="195" y="1295" width="10" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n9" parent="1" value="Kiểm tra giới hạn NV theo gói&lt;br&gt;checkStaffLimit(ownerId)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=0;align=center;verticalAlign=middle;spacing=4;arcSize=14;" vertex="1">
+          <mxGeometry x="440" y="528" width="240" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n10" parent="1" value="Đủ chỉ tiêu gói?" style="shape=rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;align=center;verticalAlign=middle;spacing=2;" vertex="1">
+          <mxGeometry x="460" y="654" width="200" height="92" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n11" parent="1" value="Kiểm tra email trùng" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=0;align=center;verticalAlign=middle;spacing=4;arcSize=14;" vertex="1">
+          <mxGeometry x="440" y="823" width="240" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n12" parent="1" value="Email đã tồn tại?" style="shape=rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;align=center;verticalAlign=middle;spacing=2;" vertex="1">
+          <mxGeometry x="460" y="944" width="200" height="92" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n13" parent="1" value="Băm mật khẩu bcrypt (12 vòng)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=0;align=center;verticalAlign=middle;spacing=4;arcSize=14;" vertex="1">
+          <mxGeometry x="440" y="1113" width="240" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n14" parent="1" value="Tạo tài khoản&lt;br&gt;role = STAFF · ownerId · isActive = true" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=0;align=center;verticalAlign=middle;spacing=4;arcSize=14;" vertex="1">
+          <mxGeometry x="440" y="1258" width="240" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n15" parent="1" value="Ghi nhật ký kiểm toán&lt;br&gt;“Tạo nhân viên”" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=0;align=center;verticalAlign=middle;spacing=4;arcSize=14;" vertex="1">
+          <mxGeometry x="440" y="1430" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n16" parent="1" value="Khóa hay&lt;br&gt;kích hoạt lại?" style="shape=rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;align=center;verticalAlign=middle;spacing=2;" vertex="1">
+          <mxGeometry x="825" y="570" width="190" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n17" parent="1" value="Đặt isActive = true&lt;br&gt;(khôi phục đăng nhập)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=0;align=center;verticalAlign=middle;spacing=4;arcSize=14;" vertex="1">
+          <mxGeometry x="805" y="790" width="230" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n18" parent="1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1">
+          <mxGeometry x="990" y="993" width="500" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n19" parent="1" value="Vô hiệu hóa phiên đăng nhập&lt;br&gt;isActive = false · thu hồi token" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;align=center;verticalAlign=middle;spacing=4;arcSize=14;" vertex="1">
+          <mxGeometry x="1010" y="1128" width="200" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n20" parent="1" value="Cập nhật nhân viên phụ&lt;br&gt;trực thuộc bị khóa" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;align=center;verticalAlign=middle;spacing=4;arcSize=14;" vertex="1">
+          <mxGeometry x="1290" y="1128" width="200" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n21" parent="1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1">
+          <mxGeometry x="990" y="1313" width="500" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n22" parent="1" value="Ghi nhật ký kiểm toán&lt;br&gt;“Khóa / kích hoạt lại”" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=0;align=center;verticalAlign=middle;spacing=4;arcSize=14;" vertex="1">
+          <mxGeometry x="1120" y="1448" width="250" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n23" parent="1" value="Chọn tài khoản nhân viên&lt;br&gt;cần khóa / kích hoạt lại" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=0;align=center;verticalAlign=middle;spacing=4;arcSize=14;" vertex="1">
+          <mxGeometry x="1585" y="298" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n24" parent="1" value="Chọn lý do &amp; xác nhận" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=0;align=center;verticalAlign=middle;spacing=4;arcSize=14;" vertex="1">
+          <mxGeometry x="1585" y="443" width="210" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n25" parent="1" value="Hiển thị kết quả cho&lt;br&gt;Quản trị viên" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=0;align=center;verticalAlign=middle;spacing=4;arcSize=14;" vertex="1">
+          <mxGeometry x="1585" y="1448" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n26" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;" vertex="1">
+          <mxGeometry x="1673" y="1663" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n26_in" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;" vertex="1">
+          <mxGeometry x="1685" y="1675" width="10" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e27" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n1" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e28" parent="1" value="Tạo nhân viên phụ" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n2" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e29" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n3" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e30" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n4" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e31" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n9" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e32" parent="1" value="Đủ" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n10" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e33" parent="1" value="Không đủ" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n10" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e34" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n7" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e35" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n11" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e36" parent="1" value="Email mới" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n12" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e37" parent="1" value="Đã tồn tại" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n12" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e38" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n13" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e39" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n14" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e40" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n15" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e41" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n5" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e42" parent="1" value="Khóa / kích hoạt lại" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n2" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n23">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e43" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n23" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n24">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e44" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n24" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e45" parent="1" value="Kích hoạt lại" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n16" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e46" parent="1" value="Khóa" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n16" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e47" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n18" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e48" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n18" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e49" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n19" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e50" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n20" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e51" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n21" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e52" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n17" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e53" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n22" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n25">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_e54" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;startArrow=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=10;fontStyle=0;fontColor=#000000;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n25" target="AD_G3_01_TaoQuanLyTaiKhoanNhanVien_n26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
