@@ -35,18 +35,14 @@ async function bootstrap() {
     origins.push('http://localhost:3001');
   }
 
+  // `origin: true` reflects the request origin back in the response, which is
+  // valid together with `credentials: true`. Returning a literal "*" alongside
+  // `Access-Control-Allow-Credentials: true` is a spec violation that browsers
+  // reject, silently blocking cross-origin requests (e.g. the tenant activate call).
+  const corsOrigin = origins.includes('*') ? true : (origins.length === 1 ? origins[0] : origins);
+
   app.enableCors({
-    // Reflect the request origin instead of returning a literal "*".
-    // Returning `Access-Control-Allow-Origin: *` together with
-    // `Access-Control-Allow-Credentials: true` is a spec violation that
-    // browsers reject, which silently blocks cross-origin requests.
-    origin: (origin, callback) => {
-      if (!origin || origins.includes('*') || origins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error(`Origin ${origin} not allowed by CORS`));
-      }
-    },
+    origin: corsOrigin,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     allowedHeaders: 'Content-Type,Authorization,Accept',
