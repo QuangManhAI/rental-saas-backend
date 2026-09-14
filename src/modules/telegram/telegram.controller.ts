@@ -13,6 +13,7 @@ import {
   VERSION_NEUTRAL,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Throttle, SkipThrottle } from '@nestjs/throttler';
@@ -37,6 +38,7 @@ export class TelegramController {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private readonly momoService: MomoService,
     private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
   ) { }
 
   /**
@@ -46,9 +48,9 @@ export class TelegramController {
   @Get('link-url')
   @UseGuards(JwtAuthGuard)
   getOwnerLinkUrl(@CurrentUser() user: UserPayload) {
-    // Use ownerId for the link (owner links their own account)
+    const botUsername = this.configService.get<string>('TELEGRAM_BOT_USERNAME', 'quangManhAI_bot');
     return {
-      url: `https://t.me/quangManhAI_bot?start=owner_${user.ownerId}`,
+      url: `https://t.me/${botUsername}?start=owner_${user.ownerId}`,
       ownerId: user.ownerId,
     };
   }
@@ -133,15 +135,62 @@ export class TelegramController {
 
       this.logger.log(`Telegram message: "${text}" from chatId=${chatId}`);
 
-      if (text.startsWith('/start ')) {
+      if (text === '/start' || text.startsWith('/start ') || text === '/help') {
         // Robust split to handle multiple spaces
         const parts = text.split(/\s+/);
-        const payload = parts[1] ? parts[1].trim() : null;
+        let payload = parts.length > 1 ? parts[1].trim() : null;
 
         if (!payload) {
-          console.log('❌ Invalid /start command: No payload provided');
-          await this.telegramService.sendMessage(chatId, '❌ Liên kết không hợp lệ. Vui lòng sử dụng liên kết chính xác.');
+          // Check if this chatId is already linked to an owner or tenant
+          const [owner, tenant] = await Promise.all([
+            this.userModel.findOne({ telegramChatId: chatId }),
+            this.tenantModel.findOne({ telegramChatId: chatId }),
+          ]);
+
+          if (owner) {
+            await this.telegramService.sendMessage(
+              chatId,
+              `👋 Xin chào <b>${owner.fullName}</b>!\n\n` +
+              `✅ Tài khoản Telegram của bạn đã được liên kết với vai trò <b>Chủ nhà trọ (Owner)</b>.\n\n` +
+              `📊 Bạn sẽ nhận được báo cáo doanh thu và các thông báo hệ thống tại đây khi kích hoạt từ ứng dụng Rental SaaS.`,
+            );
+            return { ok: true };
+          }
+
+          if (tenant) {
+            await this.telegramService.sendMessage(
+              chatId,
+              `👋 Xin chào <b>${tenant.fullName}</b>!\n\n` +
+              `✅ Tài khoản Telegram của bạn đã được liên kết với vai trò <b>Khách thuê</b>.\n\n` +
+              `💡 Bạn có thể gửi lệnh <code>/bill</code> để xem hoá đơn gần nhất.`,
+            );
+            return { ok: true };
+          }
+
+          await this.telegramService.sendMessage(
+            chatId,
+            `👋 Xin chào! Đây là bot thông báo của hệ thống <b>Rental SaaS</b>.\n\n` +
+            `🔗 <b>Hướng dẫn liên kết tài khoản:</b>\n` +
+            `1. Đăng nhập vào website quản trị <b>Rental SaaS</b>.\n` +
+            `2. Vào mục <b>Hồ sơ cá nhân</b> (Profile) hoặc Dashboard.\n` +
+            `3. Nhấn <b>Kết nối ngay</b> tại mục Telegram để mở bot và xác nhận liên kết.\n\n` +
+            `💡 Nếu bạn là khách thuê, hãy mở đường link kích hoạt hợp đồng nhận từ email/tin nhắn.`,
+          );
           return { ok: true };
+        }
+
+        // Support JWT payload if sent from tenants.controller
+        if (!payload.startsWith('owner_') && !payload.startsWith('tenant_') && !payload.startsWith('contract_')) {
+          try {
+            const decoded: any = this.jwtService.verify(payload);
+            if (decoded?.tenantId) {
+              payload = `tenant_${decoded.tenantId}`;
+            } else if (decoded?.ownerId) {
+              payload = `owner_${decoded.ownerId}`;
+            }
+          } catch {
+            // Not a valid JWT token, keep payload as-is
+          }
         }
 
         // Check if this is an OWNER linking (format: owner_<userId>)
@@ -155,7 +204,11 @@ export class TelegramController {
             return { ok: true };
           }
 
-          const owner = await this.userModel.findById(ownerId);
+          let owner = await this.userModel.findById(ownerId);
+          if (!owner) {
+            owner = await this.userModel.findOne({ ownerId });
+          }
+
           if (!owner) {
             console.log(`❌ Owner not found: ${ownerId}`);
             await this.telegramService.sendMessage(chatId, '❌ Không tìm thấy tài khoản chủ nhà trọ.');
@@ -168,7 +221,7 @@ export class TelegramController {
 
           await this.telegramService.sendMessage(
             chatId,
-            `✅ Liên kết Telegram thành công!\n\n👋 Chào ${owner.fullName}!\n\n📊 Bạn sẽ nhận được báo cáo doanh thu tại đây khi nhấn "Gửi Telegram" trong ứng dụng.`,
+            `✅ Liên kết Telegram thành công!\n\n👋 Chào mừng <b>${owner.fullName}</b>!\n\n📊 Bạn sẽ nhận được báo cáo doanh thu tại đây khi nhấn "Gửi Telegram" trong ứng dụng.`,
           );
           console.log('✅ Owner webhook processed successfully');
           return { ok: true };
