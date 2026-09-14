@@ -68,6 +68,18 @@ export class NotificationsService {
     return { modifiedCount: result.modifiedCount };
   }
 
+  async delete(
+    id: string,
+    user: UserPayload,
+  ): Promise<NotificationDocument | null> {
+    return this.notifModel
+      .findOneAndDelete({
+        _id: id,
+        ownerId: new Types.ObjectId(user.ownerId),
+      })
+      .lean() as Promise<NotificationDocument | null>;
+  }
+
   async deleteOld(daysOld = 30): Promise<number> {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - daysOld);
