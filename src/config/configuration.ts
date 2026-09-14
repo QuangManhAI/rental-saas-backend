@@ -50,10 +50,13 @@ export default () => ({
     resendApiKey: process.env.API_RESEND || '',
     from: process.env.MAIL_FROM || 'Rental SaaS <noreply@rental.local>',
   },
-  // OpenAI (AI Agent)
+  // DeepSeek / OpenAI (AI Agent)
   openai: {
-    apiKey: process.env.OPENAI_API_KEY || '',
-    model: process.env.OPENAI_MODEL || 'gpt-5-nano',
+    apiKey: process.env.OPENAI_API_KEY || process.env.DEEPSEEK_API_KEY || '',
+    baseUrl: process.env.OPENAI_BASE_URL || process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com',
+    model: !process.env.OPENAI_MODEL || process.env.OPENAI_MODEL === 'gpt-5-nano'
+      ? (process.env.DEEPSEEK_MODEL || 'deepseek-v4-flash')
+      : process.env.OPENAI_MODEL,
     maxTokens: parseInt(process.env.OPENAI_MAX_TOKENS || '2000', 10),
   },
 });

@@ -5,8 +5,11 @@ import { AiUsage, AiUsageDocument } from './schemas/ai-usage.schema';
 import { Message, MessageDocument } from './schemas/message.schema';
 import dayjs from 'dayjs';
 
-/** Estimated pricing per 1M tokens (USD) — update as OpenAI changes pricing */
+/** Estimated pricing per 1M tokens (USD) — update as LLM providers change pricing */
 const MODEL_PRICING: Record<string, { input: number; output: number }> = {
+    'deepseek-v4-flash': { input: 0.10, output: 0.30 },
+    'deepseek-chat': { input: 0.14, output: 0.28 },
+    'deepseek-reasoner': { input: 0.55, output: 2.19 },
     'gpt-5-nano': { input: 0.10, output: 0.40 },
     'gpt-4o-mini': { input: 0.15, output: 0.60 },
     'gpt-4o': { input: 2.50, output: 10.0 },
@@ -50,7 +53,7 @@ export class UsageTrackingService {
         promptTokens: number,
         completionTokens: number,
     ): number {
-        const pricing = MODEL_PRICING[model] || MODEL_PRICING['gpt-5-nano'];
+        const pricing = MODEL_PRICING[model] || MODEL_PRICING['deepseek-v4-flash'] || { input: 0.10, output: 0.30 };
         const inputCost = (promptTokens / 1_000_000) * pricing.input;
         const outputCost = (completionTokens / 1_000_000) * pricing.output;
         return Math.round((inputCost + outputCost) * 1_000_000) / 1_000_000; // 6 decimal places

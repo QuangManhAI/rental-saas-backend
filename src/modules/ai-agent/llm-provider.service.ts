@@ -26,16 +26,18 @@ export class LlmProviderService {
 
     constructor(private readonly configService: ConfigService) {
         const apiKey = this.configService.get<string>('openai.apiKey');
-        this.model = this.configService.get<string>('openai.model') || 'gpt-5-nano';
+        const baseURL = this.configService.get<string>('openai.baseUrl') || 'https://api.deepseek.com';
+        this.model = this.configService.get<string>('openai.model') || 'deepseek-v4-flash';
         this.maxTokens = this.configService.get<number>('openai.maxTokens') || 2000;
         this.configured = !!apiKey;
 
         if (!this.configured) {
-            this.logger.warn('OPENAI_API_KEY is not set — AI Agent will not work');
+            this.logger.warn('OPENAI_API_KEY / DEEPSEEK_API_KEY is not set — AI Agent will not work');
         }
 
         this.client = new OpenAI({
             apiKey: apiKey || 'not-set',
+            baseURL,
             timeout: 30_000,  // 30s hard timeout
             maxRetries: 1,    // 1 automatic retry on transient errors
         });
@@ -46,13 +48,13 @@ export class LlmProviderService {
         tools?: OpenAI.ChatCompletionTool[],
     ): Promise<LlmResponse> {
         if (!this.configured) {
-            throw new Error('OPENAI_API_KEY is not configured');
+            throw new Error('LLM API key is not configured');
         }
 
         const params: OpenAI.ChatCompletionCreateParams = {
             model: this.model,
             messages,
-            max_completion_tokens: this.maxTokens,
+            max_tokens: this.maxTokens,
         };
 
         if (tools && tools.length > 0) {
@@ -64,7 +66,7 @@ export class LlmProviderService {
         const choice = response.choices?.[0];
 
         if (!choice) {
-            throw new Error('OpenAI returned empty choices');
+            throw new Error('DeepSeek returned empty choices');
         }
 
         const toolCalls = (choice.message.tool_calls || []).map((tc: any) => {
@@ -97,13 +99,13 @@ export class LlmProviderService {
         tools?: OpenAI.ChatCompletionTool[],
     ): AsyncGenerator<StreamChunk> {
         if (!this.configured) {
-            throw new Error('OPENAI_API_KEY is not configured');
+            throw new Error('LLM API key is not configured');
         }
 
         const params: OpenAI.ChatCompletionCreateParams = {
             model: this.model,
             messages,
-            max_completion_tokens: this.maxTokens,
+            max_tokens: this.maxTokens,
             stream: true,
             stream_options: { include_usage: true },
         };
