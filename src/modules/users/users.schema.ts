@@ -21,8 +21,15 @@ export class User {
   @Prop({ required: true, enum: Role, default: Role.STAFF })
   role: Role;
 
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
-  ownerId: Types.ObjectId;
+  @Prop({
+    type: Types.ObjectId,
+    ref: 'User',
+    required: function (this: any) {
+      return this.role !== Role.ADMIN;
+    },
+    index: true,
+  })
+  ownerId?: Types.ObjectId;
 
   @Prop({ default: true })
   isActive: boolean;

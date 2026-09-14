@@ -35,7 +35,7 @@ export interface LoginResponse {
     email: string;
     fullName: string;
     role: string;
-    ownerId: Types.ObjectId;
+    ownerId?: Types.ObjectId;
   };
   tokens: TokenPair;
 }
@@ -398,6 +398,9 @@ export class AuthService {
 
     // Update password
     user.password = await bcrypt.hash(dto.newPassword, 12);
+    if (!user.ownerId && user.role === Role.ADMIN) {
+      user.ownerId = user._id as Types.ObjectId;
+    }
     await user.save();
 
     // Cleanup OTP
@@ -469,6 +472,9 @@ export class AuthService {
     }
 
     user.password = await bcrypt.hash(dto.newPassword, 12);
+    if (!user.ownerId && user.role === Role.ADMIN) {
+      user.ownerId = user._id as Types.ObjectId;
+    }
     await user.save();
 
     await this.otpModel.deleteOne({ _id: otpDoc._id });
